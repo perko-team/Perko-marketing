@@ -3,3 +3,6 @@ dist
 .astro
 .taste-skill
 .env
+
+# Hook clip for the reel: the user's own footage, kept out of the repo
+video-app/public/hook.mp4
