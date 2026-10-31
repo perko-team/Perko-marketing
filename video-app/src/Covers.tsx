@@ -18,7 +18,7 @@ export const CoverBalloon: React.FC = () => (
     <div style={{ position: 'absolute', top: 470, left: 80 }}>
       <Notice from="פרקו" light>הכרטיס של הלקוח הכי נאמן שלך עומד להיעלם.</Notice>
     </div>
-    <div style={{ position: 'absolute', top: 900, left: 0, right: 0, display: 'flex', justifyContent: 'center' }}><span style={impactStyle(170, LIME)}>לפני שהוא נעלם.</span></div>
+    <div style={{ position: 'absolute', top: 900, left: 0, right: 0, display: 'flex', justifyContent: 'center' }}><span style={impactStyle(132, LIME)}>לפני שהוא נעלם.</span></div>
     <Mark color={PAPER} disc={LIME} />
   </Field>
 );
@@ -29,7 +29,7 @@ export const CoverMessage: React.FC = () => (
     <div style={{ position: 'absolute', top: 470, left: 80 }}>
       <Notice from="לקוח קבוע">היי, הכרטיס ניקוב שלי נשאר בבית. אפשר בכל זאת חותמת?</Notice>
     </div>
-    <div style={{ position: 'absolute', top: 960, left: 0, right: 0, display: 'flex', justifyContent: 'center' }}><span style={impactStyle(180, INK)}>שמעת את זה?</span></div>
+    <div style={{ position: 'absolute', top: 960, left: 0, right: 0, display: 'flex', justifyContent: 'center' }}><span style={impactStyle(150, INK)}>שמעת את זה?</span></div>
     <Mark color={INK} disc={INK} />
   </Field>
 );
