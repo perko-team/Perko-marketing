@@ -1,5 +1,5 @@
 import React from 'react';
-import { AbsoluteFill, Audio, Sequence, interpolate, spring, staticFile, useCurrentFrame } from 'remotion';
+import { AbsoluteFill, Audio, OffthreadVideo, Sequence, interpolate, spring, staticFile, useCurrentFrame } from 'remotion';
 import { impact } from './fonts';
 import { Wordmark } from './components/Wordmark';
 
@@ -58,55 +58,47 @@ const Receipt: React.FC<{ style?: React.CSSProperties }> = ({ style }) => (
   </div>
 );
 
-/* --- 0 to 4 s: the hook --- */
-const Hook: React.FC = () => {
+/* --- 0 to 7.3 s: the supplied clip (needle, balloon, countdown to impact) with the hook line on top --- */
+const CLIP = 218; // frames, the clip's length
+const ClipHook: React.FC = () => {
   const f = useCurrentFrame();
-  const enter = sp(f, 0, 12, 200);
-  const shake = f >= 30 && f < 46 ? Math.sin(f * 2.4) * 14 : 0;
-  const fall = interpolate(f, [46, 66], [0, 1], clamp);
-  const words = ['הלקוח', 'הכי', 'נאמן', 'שלך'];
+  const line = (from: number, to: number) => ({ opacity: interpolate(f, [from, from + 6, to - 4, to], [0, 1, 1, 0], clamp), transform: `translateY(${interpolate(f, [from, from + 8], [30, 0], clamp)}px)` });
+  const text: React.CSSProperties = { position: 'absolute', left: 90, right: 90, top: 300, fontFamily: impact, fontWeight: 900, fontSize: 92, lineHeight: 1.08, letterSpacing: '-0.03em', color: PAPER, direction: 'rtl', textAlign: 'center', textShadow: '0 4px 24px rgba(0,0,0,.6)' };
   return (
-    <Center bg={LIME}>
-      <div style={{ position: 'absolute', top: 290, width: '100%', display: 'flex', justifyContent: 'center', gap: 26, direction: 'rtl' }}>
-        {words.map((w, i) => <Slam key={w} at={i * 5} size={112} color={INK}>{w}</Slam>)}
-      </div>
-      <div style={{ position: 'absolute', top: 430, width: '100%' }}><Slam at={28} size={112} color={INK}>שכח את הכרטיס.</Slam></div>
-      <Punch style={{ left: 260, top: 820, transform: `translate(${shake}px, ${fall * 1100}px) rotate(${interpolate(enter, [0, 1], [-14, -4]) + fall * 70}deg) scale(${interpolate(enter, [0, 1], [1.5, 1])})` }} />
-    </Center>
+    <AbsoluteFill style={{ background: '#000' }}>
+      <OffthreadVideo src={staticFile('hook.mp4')} style={{ width: '100%', height: '100%', objectFit: 'cover' }} volume={(fr) => interpolate(fr, [0, CLIP - 10, CLIP], [1, 1, 0], clamp)} />
+      <div style={{ ...text, ...line(10, 104) }}>הכרטיס של הלקוח<br />הכי נאמן שלך</div>
+      <div style={{ ...text, color: LIME, ...line(110, CLIP + 1) }}>עומד להיעלם.</div>
+    </AbsoluteFill>
   );
 };
-const Again: React.FC = () => {
+
+/* --- the pop: the old cards burst out of the impact, then fall into one stamp on the music's drop --- */
+const Burst: React.FC = () => {
   const f = useCurrentFrame();
-  return (
-    <Center bg={INK}>
-      <Slam at={0} size={380} color={LIME}>שוב.</Slam>
-      <div style={{ position: 'absolute', bottom: 480, left: 110, right: 110, fontFamily: impact, fontSize: 58, fontWeight: 700, lineHeight: 1.25, color: PAPER, direction: 'rtl', opacity: interpolate(f, [8, 14], [0, 1], clamp), transform: `translateY(${interpolate(f, [8, 14], [24, 0], clamp)}px)` }}>
-        כל עסק עם כרטיס אחר.<br />וכולם נשכחים בבית.
-      </div>
-    </Center>
-  );
-};
-const Barrage: React.FC = () => {
-  const f = useCurrentFrame();
-  const pop = (at: number) => sp(f, at, 12, 240);
-  const suck = interpolate(f, [20, 30], [0, 1], clamp);
-  const place = (at: number, x: number, y: number, r: number): React.CSSProperties => {
-    const p = pop(at);
-    return { left: x + (540 - x - 280) * suck, top: y + (960 - y - 120) * suck, transform: `rotate(${r * (1 - suck)}deg) scale(${interpolate(p, [0, 1], [0.3, 1]) * (1 - suck * 0.9)})`, opacity: interpolate(p, [0, 0.2], [0, 1], clamp) * (1 - suck) };
+  const flash = interpolate(f, [0, 4], [1, 0], clamp);
+  const suck = interpolate(f, [38, 50], [0, 1], clamp);
+  const fly = (at: number, x: number, y: number, r: number): React.CSSProperties => {
+    const p = sp(f, at, 12, 230);
+    const cx = 540 - 280, cy = 960 - 120;
+    const px = cx + (x - cx) * p, py = cy + (y - cy) * p;
+    return { left: px + (cx - px) * suck, top: py + (cy - py) * suck, transform: `rotate(${r * p * (1 - suck)}deg) scale(${interpolate(p, [0, 1], [0.2, 1]) * (1 - suck * 0.9)})`, opacity: interpolate(p, [0, 0.15], [0, 1], clamp) * (1 - suck) };
   };
-  const disc = interpolate(f, [22, 30], [0, 26], clamp);
+  const disc = interpolate(f, [44, 58], [0, 26], clamp);
   return (
     <Center bg={LIME}>
-      <Punch style={place(0, 120, 330, -9)} />
-      <Club style={place(4, 420, 640, 7)} />
-      <AppTile style={place(8, 80, 1000, -5)} />
-      <Receipt style={place(12, 520, 1260, 10)} />
+      <Punch style={fly(0, 90, 420, -12)} />
+      <Club style={fly(1, 440, 700, 9)} />
+      <AppTile style={fly(2, 60, 1080, -6)} />
+      <Receipt style={fly(3, 560, 1300, 11)} />
+      <div style={{ position: 'absolute', top: 250, left: 80, right: 80, opacity: 1 - suck }}><Slam at={6} size={96} color={INK}>כל עסק, כרטיס אחר.</Slam></div>
       <div style={{ position: 'absolute', width: 200, height: 200, borderRadius: '50%', background: INK, left: 440, top: 860, transform: `scale(${disc})` }} />
+      <AbsoluteFill style={{ background: '#fff', opacity: flash }} />
     </Center>
   );
 };
 
-/* --- 4 to 8 s: one card for the whole street --- */
+/* --- one card for the whole street --- */
 const OneCard: React.FC = () => {
   const f = useCurrentFrame();
   const mark = sp(f, 0, 14, 160);
@@ -114,18 +106,18 @@ const OneCard: React.FC = () => {
   return (
     <AbsoluteFill style={{ background: INK, alignItems: 'center' }}>
       <div style={{ marginTop: 300, transform: `scale(${interpolate(mark, [0, 1], [0.6, 1])})`, opacity: mark }}><Wordmark size={190} color={LIME} disc={LIME} /></div>
-      <div style={{ marginTop: 70 }}><Slam at={30} size={110} color={LIME}>כרטיס אחד</Slam></div>
-      <div style={{ marginTop: 6 }}><Slam at={45} size={72} color={PAPER} weight={700}>לכל העסקים בשכונה.</Slam></div>
+      <div style={{ marginTop: 70 }}><Slam at={18} size={110} color={LIME}>כרטיס אחד</Slam></div>
+      <div style={{ marginTop: 6 }}><Slam at={28} size={72} color={PAPER} weight={700}>לכל העסקים בשכונה.</Slam></div>
       <div style={{ marginTop: 70, width: 820, display: 'grid', gap: 18 }}>
         {rows.map(([n, v], i) => {
-          const s = sp(f, 60 + i * 8, 14, 200);
+          const s = sp(f, 38 + i * 7, 14, 200);
           return (
             <div key={n} style={{ background: PAPER, borderRadius: 22, padding: '22px 30px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontFamily: impact, direction: 'rtl', fontSize: 40, fontWeight: 800, color: INK, opacity: s, transform: `translateY(${interpolate(s, [0, 1], [80, 0])}px)` }}>
               <span>{n}</span><span style={{ direction: 'ltr', fontWeight: 600, color: MUTED }}>{v}</span>
             </div>
           );
         })}
-        <div style={{ fontFamily: impact, fontSize: 26, color: '#B9BCB0', textAlign: 'center', opacity: interpolate(f, [100, 110], [0, 1], clamp) }}>שמות לדוגמה</div>
+        <div style={{ fontFamily: impact, fontSize: 26, color: '#B9BCB0', textAlign: 'center', opacity: interpolate(f, [70, 78], [0, 1], clamp) }}>שמות לדוגמה</div>
       </div>
     </AbsoluteFill>
   );
@@ -176,7 +168,7 @@ const Journey: React.FC = () => {
 const Offer: React.FC = () => (
   <Center bg={INK}>
     <Slam at={0} size={260} color={LIME}>בחינם.</Slam>
-    <div style={{ marginTop: 30 }}><Slam at={30} size={100} color={PAPER}>בלי התחייבות.</Slam></div>
+    <div style={{ marginTop: 30 }}><Slam at={20} size={100} color={PAPER}>בלי התחייבות.</Slam></div>
   </Center>
 );
 
@@ -192,16 +184,20 @@ const End: React.FC = () => {
   );
 };
 
+// Timeline (frames): clip 0-218, pop 218-278, one card 278-368, stamps 368-473, journey 473-593, offer 593-638, end 638-698.
+// The score enters at the cut with its drop on the pop (music 3.9 s = frame 117), and its groove stops as the end card starts.
+export const REEL_FRAMES = 698;
 export const PerkoReel: React.FC = () => (
   <AbsoluteFill>
-    <Audio src={staticFile('music.wav')} volume={(f) => interpolate(f, [0, 575, 600], [0.9, 0.9, 0], clamp)} />
-    <Sequence from={0} durationInFrames={60}><Hook /></Sequence>
-    <Sequence from={60} durationInFrames={30}><Again /></Sequence>
-    <Sequence from={90} durationInFrames={30}><Barrage /></Sequence>
-    <Sequence from={120} durationInFrames={120}><OneCard /></Sequence>
-    <Sequence from={240} durationInFrames={120}><Stamps /></Sequence>
-    <Sequence from={360} durationInFrames={120}><Journey /></Sequence>
-    <Sequence from={480} durationInFrames={60}><Offer /></Sequence>
-    <Sequence from={540} durationInFrames={60}><End /></Sequence>
+    <Sequence from={CLIP - 3}>
+      <Audio src={staticFile('music.wav')} startFrom={117} volume={(f) => interpolate(f, [0, 455, 483], [0.9, 0.9, 0], clamp)} />
+    </Sequence>
+    <Sequence from={0} durationInFrames={CLIP}><ClipHook /></Sequence>
+    <Sequence from={CLIP} durationInFrames={60}><Burst /></Sequence>
+    <Sequence from={278} durationInFrames={90}><OneCard /></Sequence>
+    <Sequence from={368} durationInFrames={105}><Stamps /></Sequence>
+    <Sequence from={473} durationInFrames={120}><Journey /></Sequence>
+    <Sequence from={593} durationInFrames={45}><Offer /></Sequence>
+    <Sequence from={638} durationInFrames={60}><End /></Sequence>
   </AbsoluteFill>
 );
