@@ -19,4 +19,4 @@ export const processors = {
 };
 
 export const minAge = 13;
-export const updated = '27.10.2026';
+export const updated = '31.10.2026';
