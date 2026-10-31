@@ -12,29 +12,29 @@ import { Wordmark } from './components/Wordmark';
 // Clock: beat = 15 f, bar = 60 f, one scene per bar. The supplied clip is the hook (boot); its needle becomes the
 // line that flashes into the title, on the music's drop (f218). The groove stops as the end card starts (f638).
 // Safe zones (§9.2): HUD at y 170 and y 1620, hero content between them.
-const W = 1080, H = 1920, BEAT = 15, BAR = 60;
-const LIME = C.lime, INK = C.ink, PAPER = C.paper, MUTED = C.muted, RAISED = C.inkRaised;
-const clamp = { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' } as const;
+export const W = 1080, H = 1920, BEAT = 15, BAR = 60;
+export const LIME = C.lime, INK = C.ink, PAPER = C.paper, MUTED = C.muted, RAISED = C.inkRaised;
+export const clamp = { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' } as const;
 
 export const CLIP = 218; // the clip's length in frames; also the drop
 const S1 = CLIP, S2 = S1 + BAR, S3 = S2 + BAR, S4 = S3 + BAR, S5 = S4 + BAR, S6 = S5 + BAR, S7 = S6 + BAR, END = S7 + BAR;
 export const REEL_FRAMES = END + 75; // end card holds still for its last 15+ frames
 
 /** Hebrew impact size that keeps a word within ~85% of the width (§9.2). */
-const fit = (t: string, max = 300, w = 900) => Math.min(max, Math.round(w / (Array.from(t).length * 0.6)));
+export const fit = (t: string, max = 300, w = 900) => Math.min(max, Math.round(w / (Array.from(t).length * 0.6)));
 
 /** Base field with a soft radial lift (§3.5: never flat, never pure black or white). */
 const FIELD: Record<string, [string, string]> = {
   lime: ['#E2FF66', LIME], ink: ['#1C1F18', INK], paper: ['#FFFFFC', PAPER], tint: ['#F3F4ED', C.tint],
 };
-const Field: React.FC<{ k: keyof typeof FIELD; children?: React.ReactNode }> = ({ k, children }) => (
+export const Field: React.FC<{ k: keyof typeof FIELD; children?: React.ReactNode }> = ({ k, children }) => (
   <AbsoluteFill style={{ background: `radial-gradient(120% 80% at 78% 18%, ${FIELD[k][0]} 0%, ${FIELD[k][1]} 62%)` }}>{children}</AbsoluteFill>
 );
 
-const monoStyle = (size: number, color: string): React.CSSProperties => ({ fontFamily: mono, fontSize: size, letterSpacing: '0.12em', color, direction: 'rtl', whiteSpace: 'nowrap' });
+export const monoStyle = (size: number, color: string): React.CSSProperties => ({ fontFamily: mono, fontSize: size, letterSpacing: '0.12em', color, direction: 'rtl', whiteSpace: 'nowrap' });
 
 /** Mono overline: label, a long rule, a number (§4.3). Snaps in from the right. */
-const Overline: React.FC<{ f: number; at: number; label: string; n: string; color: string; top: number }> = ({ f, at, label, n, color, top }) => {
+export const Overline: React.FC<{ f: number; at: number; label: string; n: string; color: string; top: number }> = ({ f, at, label, n, color, top }) => {
   const x = snap(f, at, 60, 0, 8);
   return (
     <div style={{ position: 'absolute', top, right: 90, display: 'flex', gap: 18, alignItems: 'center', opacity: f < at ? 0 : 1, transform: `translateX(${x}px)`, ...monoStyle(24, color) }}>
@@ -45,7 +45,7 @@ const Overline: React.FC<{ f: number; at: number; label: string; n: string; colo
 
 /** Mono decode (§4.4): characters resolve from seeded glyphs, right to left, one per frame. */
 const GLYPHS = 'אבגדהוזחטיכלמנסעפצקרשת0123456789';
-const Decode: React.FC<{ f: number; at: number; text: string; style: React.CSSProperties }> = ({ f, at, text, style }) => {
+export const Decode: React.FC<{ f: number; at: number; text: string; style: React.CSSProperties }> = ({ f, at, text, style }) => {
   if (f < at) return null;
   const chars = Array.from(text);
   const shown = chars.map((ch, i) => (ch === ' ' || f - at >= i * 1 + 3 ? ch : GLYPHS[Math.floor(rnd(i * 31 + Math.floor(f)) * GLYPHS.length)]));
@@ -54,7 +54,7 @@ const Decode: React.FC<{ f: number; at: number; text: string; style: React.CSSPr
 
 /* --- the loyalty cards of today --- */
 const cardBase: React.CSSProperties = { position: 'absolute', width: 560, borderRadius: 30, padding: '30px 34px', fontFamily: impact, direction: 'rtl', textAlign: 'right', boxShadow: '0 30px 60px -24px rgba(0,0,0,.45)' };
-const Punch: React.FC<{ style?: React.CSSProperties }> = ({ style }) => (
+export const Punch: React.FC<{ style?: React.CSSProperties }> = ({ style }) => (
   <div style={{ ...cardBase, background: PAPER, color: INK, ...style }}>
     <div style={{ fontSize: 26, color: MUTED }}>כרטיס ניקוב</div>
     <div style={{ fontSize: 40, fontWeight: 800 }}>בית הקפה</div>
@@ -63,20 +63,20 @@ const Punch: React.FC<{ style?: React.CSSProperties }> = ({ style }) => (
     </div>
   </div>
 );
-const Club: React.FC<{ style?: React.CSSProperties }> = ({ style }) => (
+export const Club: React.FC<{ style?: React.CSSProperties }> = ({ style }) => (
   <div style={{ ...cardBase, background: RAISED, color: PAPER, ...style }}>
     <div style={{ fontSize: 40, fontWeight: 800 }}>המעדנייה</div>
     <div style={{ fontSize: 26, color: '#B9BCB0' }}>כרטיס מועדון · חבר מס׳ 004817</div>
     <div style={{ display: 'flex', gap: 5, marginTop: 30, height: 56 }}>{Array.from({ length: 34 }, (_, i) => <i key={i} style={{ width: i % 3 ? 4 : 8, background: PAPER }} />)}</div>
   </div>
 );
-const AppTile: React.FC<{ style?: React.CSSProperties }> = ({ style }) => (
+export const AppTile: React.FC<{ style?: React.CSSProperties }> = ({ style }) => (
   <div style={{ ...cardBase, background: PAPER, color: INK, display: 'flex', gap: 24, alignItems: 'center', ...style }}>
     <div style={{ width: 96, height: 96, borderRadius: 24, background: INK, flex: 'none' }} />
     <div><div style={{ fontSize: 40, fontWeight: 800 }}>המסעדה</div><div style={{ fontSize: 26, color: MUTED }}>אפליקציה נפרדת · עוד סיסמה</div></div>
   </div>
 );
-const Receipt: React.FC<{ style?: React.CSSProperties }> = ({ style }) => (
+export const Receipt: React.FC<{ style?: React.CSSProperties }> = ({ style }) => (
   <div style={{ ...cardBase, width: 460, background: '#FFFFFF', color: INK, borderRadius: 8, ...style }}>
     <div style={{ fontSize: 26, color: MUTED }}>קוד הנחה בקבלה</div>
     <div style={{ fontSize: 48, fontWeight: 900, direction: 'ltr', textAlign: 'right' }}>4817-15</div>
@@ -93,31 +93,35 @@ const HUD_SCENES = [
   { from: S7, to: END, tag: 'קריאה לפעולה', dark: false },
 ];
 const tc = (f: number) => { const p = (v: number) => String(v).padStart(2, '0'); return `00:00:${p(Math.floor(f / 30))}:${p(f % 30)}`; };
-const ReelHud: React.FC = () => {
+export type HudScene = { from: number; to: number; tag: string; dark: boolean; bottomDark?: boolean };
+/** 9:16 HUD shared by the reels. `bottomDark` lets a split scene colour its bottom labels for the lower field. */
+export const Hud916: React.FC<{ scenes: HudScene[]; label: string }> = ({ scenes, label }) => {
   const f = useCurrentFrame();
-  const i = HUD_SCENES.findIndex((s) => f >= s.from && f < s.to);
+  const i = scenes.findIndex((s) => f >= s.from && f < s.to);
   if (i < 0) return null;
-  const sc = HUD_SCENES[i];
-  const color = sc.dark ? 'rgba(248,248,244,0.75)' : 'rgba(17,19,15,0.72)';
+  const sc = scenes[i];
+  const col = (d: boolean) => (d ? 'rgba(248,248,244,0.75)' : 'rgba(17,19,15,0.72)');
+  const top = col(sc.dark), bot = col(sc.bottomDark ?? sc.dark);
   const dot = sc.dark ? LIME : INK;
-  const t: React.CSSProperties = { ...monoStyle(22, color), position: 'absolute', letterSpacing: '0.08em' };
+  const t: React.CSSProperties = { ...monoStyle(22, top), position: 'absolute', letterSpacing: '0.08em' };
   const br = (s: React.CSSProperties) => <span style={{ position: 'absolute', width: 20, height: 20, ...s }} />;
-  const b = `1.5px solid ${color}`;
+  const bt = `1.5px solid ${top}`, bb = `1.5px solid ${bot}`;
   return (
     <AbsoluteFill style={{ pointerEvents: 'none' }}>
       <div style={{ ...t, top: 170, right: 60, display: 'flex', alignItems: 'center', gap: 12 }}>
-        פרקו - לעסקים 2026<span style={{ width: 11, height: 11, borderRadius: 11, background: dot }} />
-        {br({ top: -12, right: -12, borderTop: b, borderRight: b })}
+        {label}<span style={{ width: 11, height: 11, borderRadius: 11, background: dot }} />
+        {br({ top: -12, right: -12, borderTop: bt, borderRight: bt })}
       </div>
-      <div style={{ ...t, top: 170, left: 60 }}>סצנה {String(i + 1).padStart(2, '0')} / {String(HUD_SCENES.length).padStart(2, '0')}{br({ top: -12, left: -12, borderTop: b, borderLeft: b })}</div>
-      <div style={{ ...t, top: 1620, right: 60 }}>{sc.tag}{br({ bottom: -12, right: -12, borderBottom: b, borderRight: b })}</div>
-      <div style={{ ...t, top: 1620, left: 60, direction: 'ltr', display: 'flex', alignItems: 'center', gap: 12 }}>
-        <span style={{ width: 9, height: 9, borderRadius: 9, background: dot, opacity: Math.floor(f / 8) % 2 ? 1 : 0.35 }} />{tc(f)}
-        {br({ bottom: -12, left: -12, borderBottom: b, borderLeft: b })}
+      <div style={{ ...t, top: 170, left: 60 }}>סצנה {String(i + 1).padStart(2, '0')} / {String(scenes.length).padStart(2, '0')}{br({ top: -12, left: -12, borderTop: bt, borderLeft: bt })}</div>
+      <div style={{ ...t, color: bot, top: 1620, right: 60 }}>{sc.tag}{br({ bottom: -12, right: -12, borderBottom: bb, borderRight: bb })}</div>
+      <div style={{ ...t, color: bot, top: 1620, left: 60, direction: 'ltr', display: 'flex', alignItems: 'center', gap: 12 }}>
+        <span style={{ width: 9, height: 9, borderRadius: 9, background: (sc.bottomDark ?? sc.dark) ? LIME : INK, opacity: Math.floor(f / 8) % 2 ? 1 : 0.35 }} />{tc(f)}
+        {br({ bottom: -12, left: -12, borderBottom: bb, borderLeft: bb })}
       </div>
     </AbsoluteFill>
   );
 };
+const ReelHud: React.FC = () => <Hud916 scenes={HUD_SCENES} label="פרקו - לעסקים 2026" />;
 
 /* --- Boot: the supplied clip, with the hook lines snapping in on top. Its needle becomes the line (device 1). --- */
 const ClipHook: React.FC = () => {
@@ -182,7 +186,7 @@ const Title: React.FC = () => {
 };
 
 /* --- S2 identity (ink): the wordmark, with its dot opening portal rings into paper (device 11). --- */
-const Identity: React.FC = () => {
+export const Identity: React.FC = () => {
   const f = useCurrentFrame();
   const rev = snap(f, 2, 0, 1, 10);
   const push = drift(f, 10, 1, 1.03, 40);
@@ -235,7 +239,7 @@ const Customers: React.FC = () => {
 };
 
 /* --- S4 card (lime): stamps land with an expo-out count; the tenth stamp bursts into ink (device 9). --- */
-const Card: React.FC = () => {
+export const Card: React.FC = () => {
   const f = useCurrentFrame();
   const y = snap(f, 3, 340, 0, 9);
   const v = Math.abs(snap(f, 3, 340, 0, 9) - snap(f - 1, 3, 340, 0, 9));
@@ -283,7 +287,7 @@ const Card: React.FC = () => {
 };
 
 /* --- S5 journey (ink): one step per beat, the number disc is the signal; glitch slices into tint (device 5). --- */
-const Journey: React.FC = () => {
+export const Journey: React.FC = () => {
   const f = useCurrentFrame();
   const k = Math.min(3, Math.floor(f / BEAT));
   const words = ['נרשמים.', 'מגדירים.', 'מציבים.'];
@@ -318,7 +322,7 @@ const Journey: React.FC = () => {
 
 /* --- S6 offer (tint): "free"; the next word grows out of it with a lime field behind (device 4). --- */
 const JOIN_TOP = 760;
-const Offer: React.FC = () => {
+export const Offer: React.FC = () => {
   const f = useCurrentFrame();
   const push = drift(f, 8, 1, 1.03, 40);
   const grow = accel(f, 46, 0, 1, 14);
@@ -344,7 +348,7 @@ const Offer: React.FC = () => {
 };
 
 /** "הצטרפו" with its period as its own disc: the disc later becomes the ink mask. */
-const JoinWord: React.FC<{ dot: number }> = ({ dot }) => (
+export const JoinWord: React.FC<{ dot: number }> = ({ dot }) => (
   <div style={{ display: 'flex', alignItems: 'baseline', direction: 'rtl', gap: 12 }}>
     <span style={impactStyle(250, INK)}>הצטרפו</span>
     <span style={{ position: 'relative', width: 54, height: 54, display: 'inline-block' }}>
@@ -354,7 +358,7 @@ const JoinWord: React.FC<{ dot: number }> = ({ dot }) => (
 );
 
 /* --- S7 call to action (lime): the period grows into the ink mask (device 2). --- */
-const Cta: React.FC = () => {
+export const Cta: React.FC = () => {
   const f = useCurrentFrame();
   const push = drift(f, 0, 1, 1.025, 44);
   const mask = accel(f, 46, 1, 80, 14);
@@ -370,7 +374,7 @@ const Cta: React.FC = () => {
 };
 
 /* --- End (ink): the lime dot travels and writes the wordmark, then becomes its "o" (device 12). --- */
-const End: React.FC = () => {
+export const End: React.FC = () => {
   const f = useCurrentFrame();
   const p = snap(f, 4, 0, 1, 20);
   const landed = f >= 24;
