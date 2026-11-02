@@ -16,7 +16,7 @@ export default class End extends Scene {
   render(f: Frame, out: THREE.WebGLRenderTarget) {
     const { renderer, comp, SAFE } = this.ctx;
     const t = f.t, t0 = this.ctx.start;
-    const cx = SAFE.x + SAFE.w / 2, cy = SAFE.y + SAFE.h * 0.4;
+    const cx = SAFE.x + SAFE.w / 2, cy = SAFE.y + SAFE.h * 0.32;
     this.bg.render(renderer, out, { t, x: cx, y: cy, energy: 0.2, light: 1.2 });
     const c = this.text.clear();
     // the wordmark: "perk" wipes in, the disc drops in from above and lands as the "o" on the bell (12.5 s)
@@ -57,6 +57,17 @@ export default class End extends Scene {
     }
     ln('הקישור בביו', 42, 500, cy + size * 0.75 + 270, 1.1, C.muted, brand.fonts.body);
     ln('גישה מוקדמת · עמק רפאים · דרך בית לחם', 32, 500, cy + size * 0.75 + 340, 1.3, C.muted, brand.fonts.mono);
+    // the card again, small: eight places lit, two still open (dashed), right to left
+    const kr = prog(t, t0 + 1.4, t0 + 1.8, ease.outExpo);
+    if (kr > 0) {
+      const r = 34, gap = 26, rowW = 10 * r * 2 + 9 * gap, y = cy + size * 0.75 + 470;
+      for (let i = 0; i < 10; i++) {
+        const x = cx + rowW / 2 - r - i * (2 * r + gap);
+        c.beginPath(); c.arc(x, y + (1 - kr) * 20, r, 0, Math.PI * 2);
+        if (i < 8) { c.fillStyle = rgba(C.ink, kr); c.fill(); }
+        else { c.setLineDash([9, 7]); c.lineWidth = 5; c.strokeStyle = rgba(C.ink, kr); c.stroke(); c.setLineDash([]); }
+      }
+    }
     comp.draw(renderer, this.text.upload(), out);
     return { bloom: 0.4, vignette: 0.18, grain: 0.03 };
   }
