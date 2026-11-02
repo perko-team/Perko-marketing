@@ -76,6 +76,7 @@ export default class World extends Scene {
   wave!: THREE.Mesh;
   holeGlow!: THREE.Mesh;
   card!: THREE.Group;
+  punchCard!: THREE.Mesh;
   slots: THREE.Vector3[] = [];
 
   init() {
@@ -143,7 +144,7 @@ export default class World extends Scene {
     const hole = new THREE.Path(); hole.absarc(HOLE.x, HOLE.sy, HOLE.r, 0, Math.PI * 2, true); shape.holes.push(hole);
     const cardMesh = new THREE.Mesh(new THREE.ExtrudeGeometry(shape, { depth: 0.025, bevelEnabled: false, curveSegments: 48 }),
       new THREE.MeshStandardMaterial({ map: cardTexture(), roughness: 0.9 }));
-    cardMesh.rotation.x = -Math.PI / 2; cardMesh.position.set(0, CARD.y, CARD.cz); s.add(cardMesh);
+    cardMesh.rotation.x = -Math.PI / 2; cardMesh.position.set(0, CARD.y, CARD.cz); s.add(cardMesh); this.punchCard = cardMesh;
     // the chip that is punched out: it flies at the camera
     this.chip = new THREE.Group();
     const chipBody = new THREE.Mesh(new THREE.CylinderGeometry(HOLE.r, HOLE.r, 0.025, 48), new THREE.MeshStandardMaterial({ color: '#F4F1E6', roughness: 0.9 }));
@@ -167,7 +168,7 @@ export default class World extends Scene {
 
     // the Perko card the lit rings fly into (on the ground, seen from overhead)
     this.card = new THREE.Group();
-    const cw = 7.2, ch = 4.4;
+    const cw = 7.2, ch = 6.6;
     const cardShape = new THREE.Shape();
     cardShape.moveTo(-cw / 2 + 0.4, -ch / 2); cardShape.lineTo(cw / 2 - 0.4, -ch / 2); cardShape.quadraticCurveTo(cw / 2, -ch / 2, cw / 2, -ch / 2 + 0.4);
     cardShape.lineTo(cw / 2, ch / 2 - 0.4); cardShape.quadraticCurveTo(cw / 2, ch / 2, cw / 2 - 0.4, ch / 2); cardShape.lineTo(-cw / 2 + 0.4, ch / 2);
@@ -175,7 +176,7 @@ export default class World extends Scene {
     const inkCard = new THREE.Mesh(new THREE.ExtrudeGeometry(cardShape, { depth: 0.12, bevelEnabled: false }), new THREE.MeshStandardMaterial({ color: C.ink, roughness: 0.55 }));
     inkCard.rotation.x = -Math.PI / 2; castShadows(inkCard); this.card.add(inkCard);
     for (let r = 0; r < 2; r++) for (let k = 0; k < 5; k++) {
-      const x = 2.6 - k * 1.3, z = -0.45 + r * 1.3 + 0.35; // right to left, the way Hebrew reads
+      const x = 2.6 - k * 1.3, z = 0.75 + r * 1.3 + 0.35; // right to left, the way Hebrew reads; the headline sits above
       const slot = new THREE.Mesh(new THREE.TorusGeometry(0.42, 0.03, 8, 48), matte('#4A4F43'));
       slot.rotation.x = -Math.PI / 2; slot.position.set(x, 0.14, z); this.card.add(slot);
       this.slots.push(new THREE.Vector3(x, 0.16, z));
@@ -208,6 +209,8 @@ export default class World extends Scene {
     const { renderer, comp, SAFE, W } = this.ctx;
     const t = f.t;
     this.camera(t);
+    // once the camera is through the hole the card leaves the world (the crane would otherwise pass under it)
+    this.punchCard.visible = t < 3.0;
 
     // the punch comes down (accelerating into the beat), cuts the eighth stamp out, and lifts away
     const down = prog(t, 0, TP, ease.inCubic), up = prog(t, TP + 0.1, TP + 0.55, ease.outExpo);
@@ -228,6 +231,7 @@ export default class World extends Scene {
     (this.wave.material as THREE.MeshBasicMaterial).opacity = t >= RING_T0 ? 1 - wk : 0;
     const g = prog(t, TP, TP + 0.12, ease.outCubic);
     this.holeGlow.scale.setScalar(Math.max(0.001, g));
+    this.holeGlow.visible = t < 3.0;
     (this.holeGlow.material as THREE.MeshBasicMaterial).color.setRGB(...(hexToLinear(C.accent).map((c) => c * (2.4 + 3 * Math.exp(-Math.max(0, t - TP) * 6))) as [number, number, number]));
 
     // the open spots light up down the street, one per eighth from the drop
@@ -269,14 +273,28 @@ export default class World extends Scene {
       c.fillText(s, cx, y + (1 - kin) * 40 - kout * 30);
     };
     const top = SAFE.y + 150;
-    line('עוד כרטיס ניקוב?', 112, 900, SAFE.y + SAFE.h - 170, 0.0, 1.7); // the bottom band: the punch comes in from the top
+    line('עוד כרטיס ניקוב?', 112, 900, top, 0.85, 1.75); // on the card's blank upper half, once the punch has lifted
     line('או שכונה שלמה.', 104, 900, top, 3.2, 4.15); // once the sky is behind it
     line('מחפשים את', 118, 900, top, 4.3, 6.9);
     line('העסקים הראשונים.', 118, 900, top + 130, 4.45, 6.9);
     line('עמק רפאים · דרך בית לחם', 40, 500, top + 210, 5.1, 6.9, C.muted, brand.fonts.mono);
-    line('כרטיס אחד', 118, 900, top, 9.95, 11.95);
-    line('לכל השכונה.', 118, 900, top + 130, 10.1, 11.95);
-    line('בחינם, בגישה מוקדמת', 44, 700, top + 210, 10.5, 11.95, C.muted, brand.fonts.body);
+    // the headline is printed on the Perko card itself (paper and lime on ink), the sub on the ink road below it
+    const proj = (x: number, z: number) => {
+      const v = new THREE.Vector3(x, 0.15, z).project(this.stage.camera);
+      return { x: ((v.x + 1) / 2) * this.ctx.W, y: ((1 - v.y) / 2) * this.ctx.H };
+    };
+    const cz = this.card.position.z, edgeL = proj(-3.6, cz - 2.2), edgeR = proj(3.6, cz - 2.2);
+    const cardPx = Math.abs(edgeR.x - edgeL.x), mid = proj(0, cz - 2.55), mid2 = proj(0, cz - 1.35), below = proj(0, cz + 4.4);
+    const onCard = (s2: string, px: number, w: number, p: { x: number; y: number }, t0: number, color: string, fam = brand.fonts.display) => {
+      const kin = prog(t, t0, t0 + 0.32, ease.outExpo), kout = prog(t, 11.75, 11.95, ease.inCubic);
+      const a = kin * (1 - kout);
+      if (a <= 0) return;
+      c.font = font(fam, px, w); c.fillStyle = rgba(color, a);
+      c.fillText(s2, p.x, p.y + (1 - kin) * 24);
+    };
+    onCard('כרטיס אחד', cardPx * 0.13, 900, mid, 9.95, C.bg);
+    onCard('לכל השכונה.', cardPx * 0.13, 900, mid2, 10.1, C.accent);
+    onCard('בחינם, בגישה מוקדמת', 46, 700, below, 10.5, C.bg, brand.fonts.body);
     comp.draw(renderer, this.text.upload(), out);
 
     const punch = Math.exp(-Math.max(0, t - TP) * 9) * (t >= TP ? 1 : 0);
