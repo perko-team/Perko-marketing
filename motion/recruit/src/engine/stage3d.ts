@@ -54,7 +54,7 @@ export class Stage3D {
     key.castShadow = true;
     const e = o.extent ?? 20, cam = key.shadow.camera;
     cam.left = -e; cam.right = e; cam.top = e; cam.bottom = -e; cam.near = 1; cam.far = 120;
-    key.shadow.mapSize.set(4096, 4096);
+    key.shadow.mapSize.set(2048, 2048); // 2048: software GL in a container is much slower at 4096
     key.shadow.bias = -0.0004;
     key.shadow.normalBias = 0.03;
     key.shadow.radius = 6;
