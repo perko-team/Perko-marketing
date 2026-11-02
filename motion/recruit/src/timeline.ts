@@ -4,13 +4,13 @@
 import type { TimelineEntry } from './engine/engine';
 import type { Audio } from './engine/audio';
 import { project } from './project';
-import World from './scenes/world';
+import Flat from './scenes/flat';
 import End from './scenes/end';
 
 export function makeTimeline(au: Audio): TimelineEntry[] {
   const bar = (n: number) => au.timeOfBar(n);
   return [
-    { id: 'world', scene: World, start: 0, end: bar(6) },
+    { id: 'flat', scene: Flat, start: 0, end: bar(6) },
     { id: 'end', scene: End, start: bar(6), end: project.duration },
   ];
 }
