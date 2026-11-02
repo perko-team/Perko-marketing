@@ -1,0 +1,122 @@
+[
+ {
+  "key": "the-coffee-mill",
+  "name": "טחנת הקפה",
+  "street": "emek",
+  "num": 23
+ },
+ {
+  "key": "birma-coffee",
+  "name": "בירמה",
+  "street": "emek",
+  "num": 20
+ },
+ {
+  "key": "kalo-cafe-market",
+  "name": "קאלו",
+  "street": "beitlehem",
+  "num": 31
+ },
+ {
+  "key": "itzik-s-place",
+  "name": "המקום של איציק",
+  "street": "beitlehem",
+  "num": 33
+ },
+ {
+  "key": "tziga-ice-cream",
+  "name": "ציגה",
+  "street": "beitlehem",
+  "num": 31
+ },
+ {
+  "key": "emek-flowers",
+  "name": "פרחי העמק",
+  "street": "emek",
+  "num": 43
+ },
+ {
+  "key": "casa-lavi",
+  "name": "קאסה לביא",
+  "street": "beitlehem",
+  "num": 41
+ },
+ {
+  "key": "grand-cafe",
+  "name": "גראנד קפה",
+  "street": "beitlehem",
+  "num": 70
+ },
+ {
+  "key": "le-charolais-deli-butcher",
+  "name": "לה שרולה",
+  "street": "beitlehem",
+  "num": 84
+ },
+ {
+  "key": "bresaola",
+  "name": "ברזאולה",
+  "street": "beitlehem",
+  "num": 27
+ },
+ {
+  "key": "flora-flower-shop",
+  "name": "פלורה",
+  "street": "beitlehem",
+  "num": 29
+ },
+ {
+  "key": "lechem-v-od",
+  "name": "לחם ועוד",
+  "street": "emek",
+  "num": 35
+ },
+ {
+  "key": "erez-flowers",
+  "name": "הפרחים של ארז",
+  "street": "emek",
+  "num": 26
+ },
+ {
+  "key": "kumkum-tea-house",
+  "name": "קומקום",
+  "street": "beitlehem",
+  "num": 23
+ },
+ {
+  "key": "buchman-s-diner",
+  "name": "בוכמן'ס דיינר",
+  "street": "emek",
+  "num": 51
+ },
+ {
+  "key": "pompidou-bistro-bar",
+  "name": "פומפידו",
+  "street": "emek",
+  "num": 27
+ },
+ {
+  "key": "rendez-vous",
+  "name": "רנדבו",
+  "street": "beitlehem",
+  "num": 110
+ },
+ {
+  "key": "focaccia-moshava",
+  "name": "פוקצ'ה בר",
+  "street": "emek",
+  "num": 35
+ },
+ {
+  "key": "stav-jewelry",
+  "name": "סתיו תכשיטים",
+  "street": "emek",
+  "num": 40
+ },
+ {
+  "key": "barbara-shaw-gifts",
+  "name": "ברברה שו מתנות",
+  "street": "emek",
+  "num": 6
+ }
+]
