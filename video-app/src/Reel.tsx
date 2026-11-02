@@ -321,7 +321,7 @@ export const Journey: React.FC = () => {
 };
 
 /* --- S6 offer (tint): "free"; the next word grows out of it with a lime field behind (device 4). --- */
-const JOIN_TOP = 760;
+export const JOIN_TOP = 760;
 export const Offer: React.FC = () => {
   const f = useCurrentFrame();
   const push = drift(f, 8, 1, 1.03, 40);
