@@ -1,0 +1,89 @@
+---
+// The race for the golden card: how it works, the prize and the live top 10.
+import Base from '../layouts/Base.astro';
+import RaceTop from '../components/race/RaceTop.astro';
+import { race } from '../data/race';
+const steps = [
+  { n: '1', t: 'מגיבים', d: `כותבים ״${race.keyword}״ בתגובה לפוסט של המרוץ בחשבון @${race.instagram}.` },
+  { n: '2', t: 'מקבלים כרטיס', d: 'בהודעה פרטית מגיע קישור לכרטיס חותמות עם השם שלכם.' },
+  { n: '3', t: 'אוספים חותמות', d: `כל חבר שמצטרף דרך הקישור שלכם מוסיף חותמת. מי שמשלים ${race.stamps} ראשון זוכה.` },
+];
+---
+<Base title="המרוץ לכרטיס הזהב - Perko" description={`משחק החותמות של Perko באינסטגרם: מגיבים ״${race.keyword}״, מקבלים כרטיס עם השם שלכם, ואוספים חותמות מחברים. מי שמשלים ${race.stamps} ראשון זוכה בכרטיס הזהב.`}>
+  <RaceTop />
+  <main id="main" class="rc wrap">
+    <section class="rc-hero">
+      <p class="rc-over">משחק בשכונה · באינסטגרם</p>
+      <h1 class="display rc-title"><span class="line">המרוץ</span><span class="line">לכרטיס הזהב</span></h1>
+      <p class="lead rc-sub">כרטיס חותמות עם השם שלכם, וכל חבר שמצטרף הוא חותמת. מי שמשלים {race.stamps} חותמות ראשון זוכה בכרטיס הזהב הממוספר 0001.</p>
+      <a class="btn rc-cta" href={race.postUrl} rel="noopener">לפוסט של המרוץ באינסטגרם</a>
+      <p class="small rc-status" data-status></p>
+    </section>
+
+    <section class="rc-steps" aria-labelledby="how">
+      <h2 id="how" class="visually-hidden">איך משחקים</h2>
+      <ol>
+        {steps.map((s) => <li><span class="rc-steps__n" aria-hidden="true">{s.n}</span><b>{s.t}</b><p>{s.d}</p></li>)}
+      </ol>
+    </section>
+
+    <div class="rc-two">
+      <section class="rc-board" aria-labelledby="board">
+        <h2 id="board" class="rc-h2">טבלת המובילים</h2>
+        <ol class="rc-board__list" data-board><li class="muted">טוען...</li></ol>
+        <p class="small muted">שמות פרטיים בלבד. הטבלה מתעדכנת כל כמה שניות, ופעם בשבוע מתפרסמת בסטורי.</p>
+      </section>
+      <section class="rc-prize" aria-labelledby="prize">
+        <h2 id="prize" class="rc-h2">הפרס</h2>
+        <div class="rc-gold" aria-hidden="true"><small>כרטיס זהב · מייסדי פרקו</small><b>כרטיס הזהב</b><span dir="ltr">0001</span></div>
+        <p>מי שמשלים ראשון {race.stamps} חותמות מקבל כרטיס זהב פיזי ממוספר 0001, ושם הזוכה נכנס לעמוד מייסדי Perko.</p>
+        <p class="small"><a href="/race/rules">התקנון המלא</a></p>
+      </section>
+    </div>
+  </main>
+</Base>
+
+<script>
+  import { initBoardPage } from '../scripts/race.ts';
+  initBoardPage();
+</script>
+
+<style>
+  :global(body) { background: var(--paper); }
+  .rc { padding-block: 12px 64px; display: grid; gap: 12px; }
+  .rc-hero { background: var(--lime); border-radius: var(--radius); padding: clamp(40px, 6vw, 96px) clamp(20px, 4.4vw, 72px) 40px; }
+  .rc-over { font-weight: 700; font-size: 15px; color: var(--muted); }
+  .rc-title { margin-top: 14px; }
+  .rc-sub { margin-top: 26px; max-width: 44ch; }
+  .rc-cta { margin-top: 32px; }
+  .rc-status { margin-top: 18px; font-weight: 700; min-height: 1.5em; }
+  .rc-steps ol { list-style: none; padding: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  .rc-steps li { background: var(--white); border: 1px solid var(--pale-strong); border-radius: var(--radius); padding: 28px; display: grid; gap: 8px; align-content: start; }
+  .rc-steps__n { width: 44px; height: 44px; border-radius: 50%; background: var(--ink); color: var(--lime); display: grid; place-items: center; font-weight: 800; }
+  .rc-steps b { font-size: 24px; font-weight: 800; margin-top: 8px; }
+  .rc-two { display: grid; grid-template-columns: 1.2fr 1fr; gap: 12px; }
+  .rc-board, .rc-prize { border-radius: var(--radius); padding: clamp(24px, 3.4vw, 44px); }
+  .rc-board { background: var(--white); border: 1px solid var(--pale-strong); }
+  .rc-prize { background: var(--ink); color: var(--paper); display: grid; gap: 18px; align-content: start; }
+  .rc-prize a { color: var(--lime); font-weight: 700; }
+  .rc-h2 { font-size: 28px; font-weight: 800; letter-spacing: -0.02em; }
+  .rc-board__list { list-style: none; padding: 0; margin-block: 18px; display: grid; gap: 8px; }
+  .rc-board__list :global(li) { display: grid; grid-template-columns: 36px 1fr auto; gap: 8px 12px; align-items: center; padding: 12px 16px; border-radius: 18px; background: var(--pale); font-weight: 700; }
+  .rc-board__list :global(li:first-child:not(.muted)) { background: var(--ink); color: var(--paper); }
+  .rc-board__list :global(li.muted) { display: block; background: none; padding: 8px 0; font-weight: 400; }
+  .rc-board__list :global(.n) { font-variant-numeric: tabular-nums; color: var(--muted); }
+  .rc-board__list :global(li:first-child .n) { color: var(--lime); }
+  .rc-board__list :global(.bar) { grid-column: 2 / 4; height: 6px; border-radius: 3px; background: rgba(17, 19, 15, 0.1); overflow: hidden; }
+  .rc-board__list :global(.bar span) { display: block; height: 100%; background: var(--ink); }
+  .rc-board__list :global(li:first-child .bar span) { background: var(--lime); }
+  .rc-gold {
+    aspect-ratio: 1.6; max-width: 420px; border-radius: 26px; padding: 22px 26px; color: var(--ink);
+    background: linear-gradient(135deg, #E6FF7A 0%, var(--lime) 45%, var(--lime-2) 100%); display: grid; align-content: space-between;
+  }
+  .rc-gold small { font-size: 13px; color: var(--muted); }
+  .rc-gold b { font-size: 34px; font-weight: 800; letter-spacing: -0.02em; margin-top: -40px; }
+  .rc-gold span { font-family: ui-monospace, monospace; font-size: 54px; justify-self: start; }
+  @media (max-width: 900px) {
+    .rc-steps ol, .rc-two { grid-template-columns: 1fr; }
+  }
+</style>

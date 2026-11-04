@@ -1,0 +1,88 @@
+---
+// A player's personal card: getperko.com/r/<code> (vercel.json rewrites /r/:code here; the script reads the code).
+// Friends who open it can join the race from here, and the player gets a stamp.
+import Base from '../layouts/Base.astro';
+import RaceTop from '../components/race/RaceTop.astro';
+import { race } from '../data/race';
+---
+<Base title="הכרטיס שלי במרוץ - Perko" description="המרוץ לכרטיס הזהב של Perko: כל חבר שמצטרף דרך הקישור הזה מוסיף חותמת לכרטיס.">
+  <RaceTop />
+  <main id="main" class="rc wrap" data-card-page data-stamps={race.stamps}>
+    <section class="rc-hero">
+      <p class="rc-over">המרוץ לכרטיס הזהב</p>
+      <h1 class="display rc-title" data-title>הכרטיס במרוץ</h1>
+
+      <div class="rc-card" aria-live="polite">
+        <div class="rc-card__head">
+          <span class="rc-card__brand" dir="ltr">perk<i></i></span>
+          <span class="rc-card__who"><small>הכרטיס של</small><b data-name>...</b></span>
+        </div>
+        <ol class="rc-card__grid" data-grid aria-label="חותמות">
+          {Array.from({ length: race.stamps }, (_, i) => <li><span class="visually-hidden">חותמת {i + 1}</span></li>)}
+        </ol>
+        <p class="rc-card__count" data-count></p>
+      </div>
+      <p class="rc-msg" data-msg role="status"></p>
+    </section>
+
+    <section class="rc-invite" data-invite hidden>
+      <h2 class="head" data-invite-title>קיבלתם הזמנה למרוץ</h2>
+      <p class="lead">מצטרפים בהודעה אחת לפרקו באינסטגרם, ומקבלים כרטיס משלכם. ההצטרפות שלכם מוסיפה חותמת לכרטיס הזה.</p>
+      <a class="btn rc-join" data-join href={race.joinUrl()} rel="noopener">
+        {race.keyword}, להצטרפות
+        <svg class="arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12H5m6-6l-6 6 6 6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </a>
+      <p class="small muted">הכפתור פותח הודעה לחשבון @{race.instagram} באינסטגרם. הקוד של ההזמנה עובר איתה.</p>
+    </section>
+
+    <section class="rc-share" data-share-wrap hidden>
+      <h2 class="rc-h2">זה הכרטיס שלכם?</h2>
+      <p>שלחו את הקישור לחברים. כל חבר שמצטרף דרכו מוסיף לכם חותמת, ומי שמשלים {race.stamps} ראשון זוכה בכרטיס הזהב.</p>
+      <button class="btn btn--lime" type="button" data-share>שיתוף הקישור</button>
+      <p class="small" data-share-msg role="status"></p>
+    </section>
+
+    <p class="rc-links small"><a href="/race">טבלת המובילים</a> · <a href="/race/rules">התקנון</a></p>
+  </main>
+</Base>
+
+<script>
+  import { initCardPage } from '../scripts/race.ts';
+  initCardPage();
+</script>
+
+<style>
+  :global(body) { background: var(--paper); }
+  .rc [hidden] { display: none !important; }
+  .rc { padding-block: 12px 64px; display: grid; gap: 12px; }
+  .rc-hero { background: var(--lime); border-radius: var(--radius); padding: clamp(32px, 5vw, 72px) clamp(20px, 4vw, 64px); }
+  .rc-over { font-weight: 700; font-size: 15px; color: var(--muted); }
+  .rc-title { margin-top: 12px; font-size: clamp(42px, 7vw, 96px); }
+  .rc-card {
+    margin-top: 32px; max-width: 620px; background: var(--ink); color: var(--paper); border-radius: 32px;
+    padding: clamp(22px, 4vw, 40px); box-shadow: 0 40px 80px -40px rgba(17, 19, 15, 0.6);
+  }
+  .rc-card__head { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; }
+  .rc-card__who { display: grid; text-align: start; }
+  .rc-card__who small { color: var(--slate-on-ink); font-size: 14px; }
+  .rc-card__who b { font-size: clamp(32px, 6vw, 48px); font-weight: 800; letter-spacing: -0.02em; line-height: 1.1; }
+  .rc-card__brand { order: 2; font-weight: 800; font-size: 28px; letter-spacing: -0.055em; color: var(--lime); display: inline-flex; align-items: baseline; gap: 0.035em; }
+  .rc-card__brand i { width: 0.5em; height: 0.5em; border-radius: 50%; background: var(--lime); display: inline-block; }
+  .rc-card__grid { list-style: none; padding: 0; margin-top: 28px; display: grid; grid-template-columns: repeat(5, 1fr); gap: clamp(10px, 2.4vw, 18px); }
+  .rc-card__grid :global(li) { aspect-ratio: 1; border-radius: 50%; border: 3px dashed #4A4F43; transition: background-color 400ms var(--ease-out), border-color 400ms var(--ease-out), transform 500ms var(--ease-expo); }
+  .rc-card__grid :global(li.is-on) { background: var(--lime); border: 0; }
+  .rc-card__count { margin-top: 22px; font-weight: 700; color: var(--slate-on-ink); }
+  .rc-msg { margin-top: 18px; font-weight: 700; min-height: 1.5em; }
+
+  .rc-invite, .rc-share { background: var(--white); border: 1px solid var(--pale-strong); border-radius: var(--radius); padding: clamp(28px, 4vw, 56px); display: grid; gap: 18px; justify-items: start; }
+  .rc-invite { background: var(--ink); color: var(--paper); border: 0; }
+  .rc-invite .lead { color: var(--slate-on-ink); max-width: 46ch; }
+  .rc-invite .muted { color: var(--slate-on-ink); }
+  .rc-join { background: var(--lime); color: var(--ink); min-height: 60px; font-size: 19px; }
+  .rc-h2 { font-size: 28px; font-weight: 800; letter-spacing: -0.02em; }
+  .rc-share p { max-width: 52ch; }
+  .rc-share .btn--lime { background: var(--ink); color: var(--lime); }
+  .rc-links { text-align: center; }
+  .rc-links a { font-weight: 700; }
+  @media (prefers-reduced-motion: reduce) { .rc-card__grid :global(li) { transition: none; } }
+</style>

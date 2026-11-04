@@ -1,0 +1,14 @@
+---
+import Wordmark from '../Wordmark.astro';
+---
+<header class="rc-top">
+  <div class="wrap rc-top__bar">
+    <a href="/" aria-label="Perko, לעמוד הבית"><Wordmark label={false} /></a>
+    <a class="btn btn--small" href="/race">המרוץ</a>
+  </div>
+</header>
+<style>
+  .rc-top { background: var(--paper); border-bottom: 1px solid var(--pale-strong); }
+  .rc-top__bar { display: flex; justify-content: space-between; align-items: center; min-height: 72px; }
+  .rc-top__bar :global(.wordmark) { font-size: 34px; }
+</style>

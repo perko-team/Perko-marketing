@@ -15,8 +15,15 @@ export const processors = {
   supabaseRegion: 'האיחוד האירופי (פרנקפורט, גרמניה)',
   formProvider: 'Resend (שרתים באירלנד), שמעביר את הפרטים באימייל לתיבת הדואר שלנו. הפרטים לא נשמרים במסד נתונים',
   hosting: 'Vercel',
+  dm: 'ManyChat, שמחובר לחשבון האינסטגרם של Perko ושומר את פרטי השיחה אצלו',
   email: 'Resend (שרתים באירלנד)',
 };
 
 export const minAge = 13;
-export const updated = '27.10.2026';
+export const updated = '04.11.2026';
+
+// The Instagram referral game (/race, /race/rules). Fill the dates before the post goes live.
+export const raceDates = {
+  start: '[למלא: תאריך פרסום הפוסט]',
+  end: '[למלא: תאריך סיום, למשל 31.12.2026]',
+};

@@ -1,7 +1,7 @@
 import type { APIRoute } from 'astro';
 
 // Every public page. Add new pages here.
-const pages = ['/', '/privacy', '/terms', '/accessibility'];
+const pages = ['/', '/race', '/race/rules', '/privacy', '/terms', '/accessibility'];
 
 export const GET: APIRoute = ({ site }) => {
   const lastmod = new Date().toISOString().slice(0, 10);
