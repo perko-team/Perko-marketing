@@ -6,10 +6,12 @@ import { PerkoReelMessage, MESSAGE_FRAMES } from './ReelMessage';
 import { PerkoReelSplit, SPLIT_FRAMES } from './ReelSplit';
 import { CoverBalloon, CoverMessage, CoverSplit, CoverTriptych } from './Covers';
 import { PerkoReelRecruit, RECRUIT_FRAMES } from './ReelRecruit';
+import { PerkoReelRace, RACE_FRAMES } from './ReelRace';
 import { FPS, H, REAL_DURATION, W } from './tokens';
 
 export const RemotionRoot: React.FC = () => (
   <>
+  <Composition id="PerkoReelRace" component={PerkoReelRace} durationInFrames={RACE_FRAMES} fps={30} width={1080} height={1920} />
   <Composition id="PerkoReelRecruit" component={PerkoReelRecruit} durationInFrames={RECRUIT_FRAMES} fps={30} width={1080} height={1920} />
   <Composition id="CoverTriptych" component={CoverTriptych} durationInFrames={1} fps={30} width={3240} height={1920} />
   <Composition id="CoverBalloon" component={CoverBalloon} durationInFrames={1} fps={30} width={1080} height={1920} />
