@@ -9,7 +9,14 @@ const items = [
   { q: 'האם הפלטפורמה כבר פעילה?', a: 'עדיין לא לציבור הרחב. Perko נמצאת בשלב אימות והשקה מוקדמת, ואנחנו עובדים עם עסקים שמביעים עניין כדי לבדוק ולשפר את המוצר. המסכים באתר הם המחשה של המוצר המתוכנן.' },
   { q: 'איך אפשר להשתתף בתהליך הפיתוח?', a: 'השאירו פרטים בטופס וכתבו בהודעה שתרצו לשתף משוב. נשמח לשוחח, להראות לכם את מה שבנינו ולשמוע מה חשוב לעסק שלכם.' },
 ];
+// The same questions for search engines (FAQPage structured data).
+const faqSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: items.map((it) => ({ '@type': 'Question', name: it.q, acceptedAnswer: { '@type': 'Answer', text: it.a } })),
+};
 ---
+<script type="application/ld+json" set:html={JSON.stringify(faqSchema)} />
 <section class="faq section-gap" id="faq" aria-labelledby="faq-title">
   <div class="wrap faq__grid">
     <div class="faq__head">
