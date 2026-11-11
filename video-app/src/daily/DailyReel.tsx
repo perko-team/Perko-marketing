@@ -180,8 +180,8 @@ const Item: React.FC<{ s: DailySpec; i: number; k: FieldKey; next: FieldKey; vo?
           </div>;
         })()}
         {it.body && !vo && (
-          <div style={{ marginTop: 40, maxWidth: 900 }}>
-            <WriteOn g={f} at={BEAT + 2} style={{ ...accentStyle(80, c.fg), whiteSpace: 'normal', lineHeight: 1.2, textAlign: 'right' }}>{it.body}</WriteOn>
+          <div style={{ marginTop: it.visual ? 26 : 40, maxWidth: 900 }}>
+            <WriteOn g={f} at={BEAT + 2} style={{ ...accentStyle(it.visual ? 60 : 80, c.fg), whiteSpace: 'normal', lineHeight: 1.2, textAlign: 'right' }}>{it.body}</WriteOn>
           </div>
         )}
       </div>
