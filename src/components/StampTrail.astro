@@ -2,7 +2,7 @@
 // A fixed card that fills with one stamp per section read. Decorative page progress: it carries no reward and no real count.
 const stations = [
   { id: 'problem' }, { id: 'solution' }, { id: 'how' }, { id: 'demo' },
-  { id: 'business' }, { id: 'network' }, { id: 'join' }, { id: 'faq' },
+  { id: 'business' }, { id: 'journey' }, { id: 'network' }, { id: 'join' }, { id: 'faq' },
 ];
 ---
 <aside class="trail" data-trail={stations.map((s) => s.id).join(',')} aria-hidden="true">
@@ -26,7 +26,7 @@ const stations = [
   }
   .trail__head { display: flex; justify-content: space-between; gap: 12px; margin-bottom: 10px; font-size: 13px; font-weight: 600; color: var(--slate-on-ink); }
   .trail__head b { color: var(--lime); font-variant-numeric: tabular-nums; }
-  .trail__slots { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(8, 1fr); gap: 6px; }
+  .trail__slots { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(9, 1fr); gap: 6px; }
   .trail__slots i {
     display: block; aspect-ratio: 1; border-radius: 50%;
     border: 1.5px solid var(--slate-on-ink); transition: background-color 240ms var(--ease-out), border-color 240ms var(--ease-out);

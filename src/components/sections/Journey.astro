@@ -1,0 +1,124 @@
+---
+import QrGlyph from '../ui/QrGlyph.astro';
+// The business's journey, from signing up to having a working card. Each step draws one more line of the card.
+// Only what exists or is planned for the pilot is shown. Names on the card are examples.
+const steps = [
+  { t: 'נרשמים בחינם', d: 'מילוי טופס קצר על העסק ועל איש הקשר.', what: 'בלי התחייבות לתשלום, ובלי פרטי אשראי.' },
+  { t: 'שיחה קצרה איתנו', d: 'כ-15 דקות על הלקוחות שלכם, על השעות העמוסות ועל מה שכדאי לתגמל.', what: 'בסוף השיחה יודע כל צד מה הצעד הבא.' },
+  { t: 'מגדירים את ההטבה', d: 'אתם קובעים את הכללים: כמה ביקורים, ומה הלקוח מקבל. למשל, קפה עשירי חינם.', what: 'כל עסק שומר על הכללים שלו.' },
+  { t: 'קוד לדלפק', d: 'מדפיסים קוד QR ומציבים ליד הקופה. אחרי קנייה הלקוח סורק, והחותמת נכנסת לכרטיס.', what: 'זה חלק מהפיילוט. אנחנו מלווים את ההתקנה.' },
+  { t: 'הכרטיס פעיל', d: 'הלקוחות רואים את ההתקדמות שלהם, ומממשים הטבה בדלפק.', what: 'עסקים שכנים מופיעים באותה אפליקציה, בשלב הפיילוט.' },
+];
+---
+<section class="journey" id="journey" aria-labelledby="journey-title">
+  <div class="journey__stage">
+    <span class="jrail" aria-hidden="true"><i></i></span>
+    <div class="journey__intro">
+      <p class="eyebrow" data-reveal>המסע של עסק</p>
+      <h2 id="journey-title" class="head journey__title" data-reveal>
+        <span class="line">מהרישום ועד הכרטיס.</span>
+      </h2>
+      <p class="lead" data-reveal style="--i:1">כך נראה הדרך של עסק שמצטרף לפיילוט, שלב אחרי שלב.</p>
+    </div>
+
+    <div class="journey__card-wrap" aria-hidden="true">
+      <div class="jcard" data-state="0" data-jcard>
+        <div class="jcard__top">
+          <b>הגדרת התוכנית</b>
+          <span class="jcard__tag">לדוגמה</span>
+        </div>
+        <div class="jrow" data-from="1"><span>שם העסק</span><b>קפה פינה</b></div>
+        <div class="jrow" data-from="2">
+          <span>ההטבה</span>
+          <b>קפה עשירי חינם</b>
+          <span class="jdots">{Array.from({ length: 10 }, () => <i></i>)}</span>
+        </div>
+        <div class="jrow jrow--qr" data-from="3">
+          <QrGlyph class="jqr" />
+          <span>מודפס ליד הקופה</span>
+        </div>
+        <div class="jrow" data-from="4">
+          <span>לקוחות שצוברים</span>
+          <span class="jdots jdots--live">{Array.from({ length: 10 }, (_, i) => <i class:list={{ on: i < 3 }}></i>)}</span>
+        </div>
+        <div class="jrow jrow--ready" data-from="5"><b>הכרטיס פעיל בשכונה</b><span>שלב הפיילוט</span></div>
+      </div>
+    </div>
+
+    <ol class="journey__steps">
+      {steps.map((s, i) => (
+        <li class="jstep" data-jstep={i + 1}>
+          <span class="jstep__n">{i + 1}</span>
+          <div>
+            <h3>{s.t}</h3>
+            <p>{s.d}</p>
+            <p class="jstep__what">{s.what}</p>
+          </div>
+        </li>
+      ))}
+    </ol>
+  </div>
+</section>
+
+<style>
+  .journey { position: relative; padding: 0 12px; }
+  .journey__stage {
+    position: relative; display: grid; grid-template-columns: 1fr 1fr; gap: 12px 24px;
+    background: var(--paper); border-radius: var(--radius); padding: clamp(32px, 5vw, 72px) clamp(24px, 4vw, 64px);
+  }
+  .journey__intro { grid-column: 1; align-self: start; display: grid; gap: 16px; }
+  .journey__title { margin: 0; }
+  .eyebrow { font-size: 13px; font-weight: 700; letter-spacing: 0.02em; color: var(--muted); }
+  .journey__card-wrap { grid-column: 2; grid-row: 1 / span 2; position: sticky; top: 96px; align-self: start; }
+  .journey__steps { grid-column: 1; list-style: none; margin: 0; padding: 0; display: grid; gap: 40vh; padding-bottom: 20vh; }
+  .jstep { display: grid; grid-template-columns: auto 1fr; gap: 16px; align-items: start; opacity: 0.45; transition: opacity 300ms var(--ease-out); }
+  .jstep.is-current { opacity: 1; }
+  .jstep__n {
+    display: grid; place-items: center; width: 40px; height: 40px; border-radius: 50%;
+    border: 1.5px solid var(--ink); font-weight: 800; font-size: 15px;
+  }
+  .jstep.is-current .jstep__n { background: var(--ink); color: var(--lime); }
+  .jstep h3 { font-size: 22px; font-weight: 800; letter-spacing: -0.01em; margin: 6px 0 6px; }
+  .jstep p { margin: 0; max-width: 40ch; color: var(--muted); }
+  .jstep .jstep__what { margin-top: 8px; color: var(--ink); font-size: 14px; font-weight: 600; }
+  .jrail { position: absolute; inset-inline-end: 0; top: 0; bottom: 0; width: 2px; background: var(--line, #e4e5de); border-radius: 2px; }
+  .jrail i { position: absolute; inset: 0; background: var(--ink); border-radius: 2px; transform-origin: top; transform: scaleY(var(--fill, 0)); transition: transform 500ms var(--ease-out); }
+
+  .jcard {
+    background: var(--ink); color: var(--paper); border-radius: 20px; padding: 22px;
+    display: grid; gap: 12px; max-width: 420px; margin-inline-start: auto;
+  }
+  .jcard__top { display: flex; justify-content: space-between; align-items: center; font-size: 15px; }
+  .jcard__tag { font-size: 11px; font-weight: 700; padding: 2px 9px; border-radius: 999px; background: var(--lime); color: var(--ink); }
+  .jrow {
+    background: var(--ink-raised); border-radius: 14px; padding: 12px 14px; display: grid; gap: 6px;
+    font-size: 14px; color: var(--slate-on-ink);
+  }
+  .jrow b { color: var(--paper); font-size: 16px; }
+  .jrow--qr { grid-template-columns: auto 1fr; align-items: center; }
+  .jqr { width: 52px; height: 52px; color: var(--paper); }
+  .jdots { display: grid; grid-template-columns: repeat(10, 1fr); gap: 5px; }
+  .jdots i { aspect-ratio: 1; border-radius: 50%; border: 1.5px solid var(--slate-on-ink); }
+  .jdots i.on { background: var(--lime); border-color: var(--lime); }
+  .jrow--ready { background: var(--lime); color: var(--ink); }
+  .jrow--ready b { color: var(--ink); }
+
+  /* Each row appears once its step is reached. */
+  .jrow { transition: opacity 360ms var(--ease-out), translate 360ms var(--ease-out); }
+  .jrow:not(.is-on) { opacity: 0; translate: 0 10px; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .journey__card-wrap { position: static; }
+    .journey__steps { gap: 20px; padding-bottom: 0; }
+    .jstep { opacity: 1; }
+    .jrow { transition: none; }
+  }
+  @media (max-width: 900px) {
+    .journey__stage { grid-template-columns: 1fr; padding: 28px 20px; }
+    .journey__card-wrap { grid-column: 1; grid-row: auto; position: sticky; top: 72px; z-index: 2; }
+    .jcard { padding: 16px; gap: 8px; max-width: none; }
+    .jrow { padding: 10px 12px; }
+    .journey__steps { grid-column: 1; gap: 28vh; }
+    .journey__intro { grid-column: 1; }
+  }
+</style>
