@@ -65,5 +65,30 @@
     "me": true
    }
   ]
+ },
+ "vo": {
+  "voice": "ElevenLabs Gad Tamir - Casual",
+  "scenes": [
+   {
+    "file": "day01-b-el-0.mp3",
+    "dur": 2.46
+   },
+   {
+    "file": "day01-b-el-1.mp3",
+    "dur": 2.08
+   },
+   {
+    "file": "day01-b-el-2.mp3",
+    "dur": 2.93
+   },
+   {
+    "file": "day01-b-el-3.mp3",
+    "dur": 2.3
+   },
+   {
+    "file": "day01-b-el-4.mp3",
+    "dur": 2.22
+   }
+  ]
  }
 }
