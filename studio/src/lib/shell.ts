@@ -30,31 +30,49 @@ export function shell(page: 'calendar' | 'stats', start: () => void) {
 function gate(start: () => void) {
   const main = $('main');
   main.hidden = true;
-  document.body.insertAdjacentHTML('beforeend', `
-  <form class="gate card" id="gate" autocomplete="on">
-    <h1>כניסה לסטודיו</h1>
-    <p>לוח הפרסומים של הרילס של Perko. הסיסמה נמצאת אצל מי שמנהל את החשבון.</p>
-    <label for="pw">סיסמה</label>
-    <input id="pw" name="password" type="password" autocomplete="current-password" required>
-    <p class="err" id="gate-err" hidden></p>
-    <button class="btn" type="submit">כניסה</button>
-  </form>`);
+  document.body.classList.add('gated');
+  // The punch card is the password meter: each character punches a hole, a correct password fills the card.
+  const holes = Array.from({ length: 10 }, (_, i) => `<i class="hole" style="--i:${i}"></i>`).join('');
+  main.insertAdjacentHTML('beforebegin', `
+  <div class="gate-wrap" id="gate-wrap">
+    <section class="gate-art" aria-hidden="true">
+      <div class="gcard" id="gcard">
+        <div class="gcard-top"><span class="gcard-name">סטודיו הרילסים</span><span class="gcard-mark"><i></i>perko</span></div>
+        <div class="gcard-holes">${holes}</div>
+        <div class="gcard-foot"><span>שני רילסים ביום</span><span>לוח אחד</span></div>
+      </div>
+    </section>
+    <form class="gate" id="gate" autocomplete="on">
+      <h1>הלוח של הרילסים, במקום אחד</h1>
+      <p class="lede">כאן מתזמנים את הרילסים של <bdi dir="ltr">@getperko</bdi>, גוררים אותם בין ימים ורואים מה עבד. הסיסמה אצל מי שמנהל את החשבון.</p>
+      <label for="pw">סיסמה</label>
+      <input id="pw" name="password" type="password" autocomplete="current-password" required>
+      <p class="err" id="gate-err" role="alert" hidden></p>
+      <button class="btn" type="submit">כניסה לסטודיו</button>
+    </form>
+  </div>`);
   const form = $<HTMLFormElement>('#gate');
+  const pw = $<HTMLInputElement>('#pw');
+  const card = $('#gcard');
+  const punch = (n: number) => card.querySelectorAll('.hole').forEach((h, i) => h.classList.toggle('on', i < n));
+  pw.addEventListener('input', () => { punch(Math.min(10, pw.value.length)); card.classList.remove('nope'); });
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
     const err = $('#gate-err'), btn = $<HTMLButtonElement>('button', form);
-    btn.disabled = true; err.hidden = true;
+    btn.disabled = true; err.hidden = true; btn.textContent = 'בודקים...';
     try {
-      await signIn($<HTMLInputElement>('#pw').value);
-      form.remove(); main.hidden = false; start();
+      await signIn(pw.value);
+      punch(10); card.classList.add('full');
+      await new Promise((r) => setTimeout(r, matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 650));
+      $('#gate-wrap').remove(); document.body.classList.remove('gated'); main.hidden = false; start();
     } catch (x) {
       const code = x instanceof ApiError ? x.code : '';
-      err.textContent = code === 'wrong_password' ? 'הסיסמה לא נכונה.' : code === 'too_many_attempts' ? 'יותר מדי ניסיונות. נסו שוב בעוד רבע שעה.'
+      err.textContent = code === 'wrong_password' ? 'הסיסמה לא נכונה. נסו שוב.' : code === 'too_many_attempts' ? 'יותר מדי ניסיונות. נסו שוב בעוד רבע שעה.'
         : code === 'not_configured' ? 'עוד לא הוגדרה סיסמה לסטודיו (STUDIO_PASSWORD ב-Supabase).' : 'אין חיבור לשרת. נסו שוב.';
-      err.hidden = false;
-    } finally { btn.disabled = false; }
+      err.hidden = false; card.classList.remove('nope'); void card.offsetWidth; card.classList.add('nope'); punch(0); pw.select();
+    } finally { btn.disabled = false; btn.textContent = 'כניסה לסטודיו'; }
   });
-  $<HTMLInputElement>('#pw').focus();
+  pw.focus();
 }
 
 let toastTimer = 0;

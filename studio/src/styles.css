@@ -160,12 +160,40 @@ h1 { font-size: 24px; line-height: 32px; font-weight: 700; margin: 0; letter-spa
 .toast { position: fixed; z-index: 60; bottom: max(20px, env(safe-area-inset-bottom, 0px)); left: 50%; transform: translateX(-50%); max-width: min(560px, calc(100vw - 32px));
   display: flex; align-items: center; gap: 16px; padding: 12px 16px; border-radius: var(--r); background: var(--text); color: var(--surface); box-shadow: 0 8px 24px rgba(0, 0, 0, .2); }
 .toast .link { color: var(--lime); }
-.gate { max-width: 380px; margin: 12vh auto 0; padding: 24px; display: grid; gap: 10px; }
-.gate p { margin: 0; color: var(--muted); }
-.gate label { font-weight: 500; margin-top: 6px; }
-.gate input { height: 40px; padding: 0 10px; border: 1px solid var(--control); border-radius: var(--r-s); background: var(--surface); }
-.gate .err { color: var(--neg-ink); }
-.gate .btn { height: 40px; margin-top: 6px; }
+/* login: the punch card is the password meter; a lime field on one side, the form on the paper ground */
+body.gated .tabs, body.gated #signout { display: none; }
+.gate-wrap { min-height: calc(100vh - 56px); display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); }
+.gate-art { background: var(--lime); display: grid; place-items: center; padding: 48px max(29px, env(safe-area-inset-right, 0px)); }
+.gcard { width: min(520px, 100%); aspect-ratio: 1.6; background: #FCFBF6; color: #11130F; border-radius: 36px; padding: 34px 38px;
+  display: grid; grid-template-rows: auto 1fr auto; gap: 18px; transform: rotate(-4deg); transition: transform .4s cubic-bezier(.2, .8, .2, 1); }
+.gcard-top { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+.gcard-name { font-size: clamp(20px, 2.2vw, 28px); font-weight: 800; letter-spacing: -0.01em; }
+.gcard-mark { display: inline-flex; align-items: center; gap: 6px; font-weight: 800; font-size: 20px; direction: ltr; }
+.gcard-mark i { width: 12px; height: 12px; border-radius: 50%; background: #11130F; order: 2; }
+.gcard-holes { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: clamp(10px, 1.6vw, 18px); align-content: center; }
+.hole { aspect-ratio: 1; border-radius: 50%; border: 3px dashed #CDD0C2; transition: transform .18s cubic-bezier(.2, 1.6, .4, 1), background-color .12s; }
+.hole.on { background: #11130F; border: 3px solid #11130F; transform: scale(1.06); }
+.gcard.full .hole { background: #D7FF35; border-color: #11130F; transition-delay: calc(var(--i) * 30ms); }
+.gcard.full { transform: rotate(0deg) scale(1.03); }
+.gcard.nope { animation: nope .4s; }
+@keyframes nope { 20%, 60% { transform: rotate(-4deg) translateX(-14px); } 40%, 80% { transform: rotate(-4deg) translateX(14px); } }
+.gcard-foot { display: flex; justify-content: space-between; font-size: 15px; color: #565C4B; }
+.gate { align-self: center; justify-self: center; width: min(440px, 100%); padding: 48px max(29px, env(safe-area-inset-right, 0px)); display: grid; gap: 12px; }
+.gate h1 { font-size: clamp(30px, 3.2vw, 44px); line-height: 1.08; letter-spacing: -0.02em; text-wrap: balance; }
+.gate .lede { margin: 0 0 18px; font-size: 16px; line-height: 1.55; color: var(--text); }
+.gate label { font-weight: 500; }
+.gate input { height: 52px; padding: 0 14px; font-size: 18px; border: 1px solid var(--control); border-radius: var(--r-s); background: var(--surface); letter-spacing: 0.2em; }
+.gate input:focus-visible { outline: 2px solid var(--text); outline-offset: 2px; }
+.gate .err { margin: 0; color: var(--neg-ink); }
+.gate .btn { height: 52px; font-size: 16px; margin-top: 8px; }
+@media (max-width: 760px) {
+  .gate-wrap { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto auto; }
+  .gate-art { padding: 28px 16px 36px; }
+  .gcard { width: min(340px, 100%); padding: 22px 24px; border-radius: 26px; gap: 12px; }
+  .gcard-foot { font-size: 13px; }
+  .gate { padding: 28px 16px 40px; }
+}
+@media (prefers-reduced-motion: reduce) { .gcard, .hole { transition: none; } .gcard.nope { animation: none; } }
 
 /* ---------- stats ---------- */
 .kpis { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); }
