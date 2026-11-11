@@ -8,15 +8,29 @@
  "items": [
   {
    "title": "חותמת אחרונה",
-   "body": "הקופאי מחייך."
+   "body": "הקופאי מחייך.",
+   "visual": {
+    "type": "card",
+    "stamps": 10,
+    "name": "מלאה!"
+   }
   },
   {
    "title": "הקפה עליהם",
-   "body": "הכי טעים השבוע."
+   "body": "הכי טעים השבוע.",
+   "visual": {
+    "type": "phone",
+    "shot": "redeem-b"
+   }
   },
   {
    "title": "כרטיסייה חדשה",
-   "body": "מתחילים מחדש."
+   "body": "מתחילים מחדש.",
+   "visual": {
+    "type": "card",
+    "stamps": 0,
+    "name": "כרטיסייה חדשה"
+   }
   }
  ],
  "cta": {
@@ -32,5 +46,19 @@
   "#הומורלעסקים",
   "#ירושלים",
   "#getperko"
- ]
+ ],
+ "hookVisual": {
+  "type": "card",
+  "stamps": 9,
+  "name": "כמעט מלאה"
+ },
+ "ctaVisual": {
+  "type": "chat",
+  "lines": [
+   {
+    "text": "חייב לראות את זה",
+    "me": true
+   }
+  ]
+ }
 }

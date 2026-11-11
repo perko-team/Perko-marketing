@@ -92,6 +92,47 @@ days = [
       caption='התחושה הכי טובה בשכונה ☕✨')),
 ]
 
+# What the viewer looks at under the words (src/daily/Props.tsx). Myth and flag items get a stamp or a flag
+# automatically. App screens are the real app in demo mode (public/shots).
+def card(n, name=None): return {'type': 'card', 'stamps': n, **({'name': name} if name else {})}
+def phone(shot): return {'type': 'phone', 'shot': shot}
+def chat(*lines): return {'type': 'chat', 'lines': [{'text': t[1:], 'me': True} if t.startswith('>') else {'text': t} for t in lines]}
+def clock(t): return {'type': 'clock', 'time': t}
+def receipt(*l): return {'type': 'receipt', 'lines': list(l)}
+def stars(n): return {'type': 'stars', 'n': n}
+def wallet(n): return {'type': 'wallet', 'cards': n}
+APP, SENT = phone('wallet'), chat('>חייב לראות את זה')
+
+VIS = {  # (hook, [items], cta); None = automatic
+ 'day01-a': (card(7, 'קפה פינה'), [chat('>היי דנה! כרגיל?'), phone('focus-coffee'), chat('>תודה! נתראה מחר')], APP),
+ 'day01-b': (clock('08:00'), [clock('08:05'), clock('08:20'), chat('בוקר טוב!', '>הרגיל?')], SENT),
+ 'day02-a': (receipt('קפה', 'הנחה', 'עוד הנחה'), [None, card(6, 'קבועים')], APP),
+ 'day02-b': ({'type': 'flag', 'tone': 'red'}, [None, None, None, None], SENT),
+ 'day03-a': (receipt('פרסום', 'עוד פרסום', 'ועוד פרסום'), [phone('focus-coffee'), chat('>מה הכי אהבת היום?', 'העוגה!'), card(10, 'מגיע לך')], APP),
+ 'day03-b': (wallet(10), [card(8, 'בית הקפה'), card(3, 'המאפייה'), wallet(8)], SENT),
+ 'day04-a': (clock('15:30'), [chat('>מתגעגעים! קפה עלינו היום'), receipt('שעה שקטה', 'מאפה מתנה'), chat('>אצלנו קפה, אצלכם עוגה?', 'סגרנו!')], APP),
+ 'day04-b': (card(9, 'הקבוע'), [None, None, None], SENT),
+ 'day05-a': (clock('23:00'), [None, phone('discover')], APP),
+ 'day05-b': (clock('22:00'), [receipt('ספירה ראשונה', 'ספירה שנייה'), clock('22:30'), chat('>מחר מנסים משהו חדש')], SENT),
+ 'day06-a': (card(2, 'עוד 18 חותמות'), [card(9, 'כמעט שם'), phone('redeem-a'), APP], phone('focus-zaatar')),
+ 'day06-b': (wallet(7), [None, None, None], SENT),
+ 'day07-a': (stars(2), [chat('הקפה הגיע קר', '>סליחה! מחליפים מיד'), stars(3), stars(5)], APP),
+ 'day07-b': (card(9, 'כמעט מלאה'), [card(10, 'מלאה!'), phone('redeem-b'), card(0, 'כרטיסייה חדשה')], SENT),
+}
+
+
+def visuals(s):
+    hook, items, cta = VIS[s['id']]
+    s['hookVisual'], s['ctaVisual'] = hook, cta
+    for i, it in enumerate(s['items']):
+        v = items[i] if i < len(items) else None
+        if v is None and s['format'] == 'myth':
+            v = {'type': 'stamp', 'text': 'מיתוס' if i % 2 == 0 else 'אמת', 'tone': 'red' if i % 2 == 0 else 'lime'}
+        if v is None and s['format'] == 'flags':
+            v = {'type': 'flag', 'tone': 'green' if it.get('tag') == 'green' else 'red'}
+        if v: it['visual'] = v
+
+
 HOOK_TYPES = {'list', 'symptom', 'mistake', 'stop', 'quiz', 'pov', 'relatable', 'incomplete'}
 BANNED = ('עד הסוף', 'תצפו', 'לא תאמינו', 'שלום', 'היי ')
 
@@ -119,6 +160,7 @@ for d, (a, b) in enumerate(days, 1):
         s['items'] = [{k: v for k, v in it.items() if v != ''} for it in s['items']]
         s['music'] = (2 * (d - 1) + (slot == 'b')) % 4 + 1
         s['hashtags'] = TAGS_BIZ if slot == 'a' else TAGS_FUN
+        visuals(s)
         lint(s)
         old = OUT / f"{s['id']}.json"
         if old.exists() and 'vo' in json.loads(old.read_text()):  # keep narration made by content/voiceover.py

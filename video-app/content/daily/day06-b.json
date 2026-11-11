@@ -8,15 +8,27 @@
  "items": [
   {
    "title": "נשארה בבית",
-   "tag": "red"
+   "tag": "red",
+   "visual": {
+    "type": "flag",
+    "tone": "red"
+   }
   },
   {
    "title": "נרטבה בכביסה",
-   "tag": "red"
+   "tag": "red",
+   "visual": {
+    "type": "flag",
+    "tone": "red"
+   }
   },
   {
    "title": "אחת בארנק, אחת בטלפון",
-   "tag": "green"
+   "tag": "green",
+   "visual": {
+    "type": "flag",
+    "tone": "green"
+   }
   }
  ],
  "cta": {
@@ -32,5 +44,18 @@
   "#הומורלעסקים",
   "#ירושלים",
   "#getperko"
- ]
+ ],
+ "hookVisual": {
+  "type": "wallet",
+  "cards": 7
+ },
+ "ctaVisual": {
+  "type": "chat",
+  "lines": [
+   {
+    "text": "חייב לראות את זה",
+    "me": true
+   }
+  ]
+ }
 }

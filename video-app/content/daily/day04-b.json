@@ -8,15 +8,27 @@
  "items": [
   {
    "title": "מזמין בלי להסתכל בתפריט",
-   "tag": "green"
+   "tag": "green",
+   "visual": {
+    "type": "flag",
+    "tone": "green"
+   }
   },
   {
    "title": "יודע איפה הסוכר",
-   "tag": "green"
+   "tag": "green",
+   "visual": {
+    "type": "flag",
+    "tone": "green"
+   }
   },
   {
    "title": "אומר שלום לצוות בשם",
-   "tag": "green"
+   "tag": "green",
+   "visual": {
+    "type": "flag",
+    "tone": "green"
+   }
   }
  ],
  "cta": {
@@ -32,5 +44,19 @@
   "#הומורלעסקים",
   "#ירושלים",
   "#getperko"
- ]
+ ],
+ "hookVisual": {
+  "type": "card",
+  "stamps": 9,
+  "name": "הקבוע"
+ },
+ "ctaVisual": {
+  "type": "chat",
+  "lines": [
+   {
+    "text": "חייב לראות את זה",
+    "me": true
+   }
+  ]
+ }
 }

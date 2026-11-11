@@ -8,15 +8,37 @@
  "items": [
   {
    "title": "תזכרו שמות",
-   "body": "לקוח שקוראים לו בשם מרגיש בבית, וחוזר."
+   "body": "לקוח שקוראים לו בשם מרגיש בבית, וחוזר.",
+   "visual": {
+    "type": "chat",
+    "lines": [
+     {
+      "text": "היי דנה! כרגיל?",
+      "me": true
+     }
+    ]
+   }
   },
   {
    "title": "תנו סיבה לחזור",
-   "body": "כרטיסייה, הטבה קטנה או משהו חדש בכל שבוע."
+   "body": "כרטיסייה, הטבה קטנה או משהו חדש בכל שבוע.",
+   "visual": {
+    "type": "phone",
+    "shot": "focus-coffee"
+   }
   },
   {
    "title": "תגידו תודה",
-   "body": "מילה אחת בקופה עושה יותר ממבצע."
+   "body": "מילה אחת בקופה עושה יותר ממבצע.",
+   "visual": {
+    "type": "chat",
+    "lines": [
+     {
+      "text": "תודה! נתראה מחר",
+      "me": true
+     }
+    ]
+   }
   }
  ],
  "cta": {
@@ -33,6 +55,15 @@
   "#ירושלים",
   "#getperko"
  ],
+ "hookVisual": {
+  "type": "card",
+  "stamps": 7,
+  "name": "קפה פינה"
+ },
+ "ctaVisual": {
+  "type": "phone",
+  "shot": "wallet"
+ },
  "vo": {
   "voice": "ElevenLabs Gad Tamir - Casual",
   "scenes": [

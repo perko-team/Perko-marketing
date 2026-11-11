@@ -8,19 +8,35 @@
  "items": [
   {
    "title": "כרטיסייה מקומטת בארנק",
-   "tag": "red"
+   "tag": "red",
+   "visual": {
+    "type": "flag",
+    "tone": "red"
+   }
   },
   {
    "title": "לקוח שמכיר את הצוות בשם",
-   "tag": "green"
+   "tag": "green",
+   "visual": {
+    "type": "flag",
+    "tone": "green"
+   }
   },
   {
    "title": "אותו מבצע כבר שנה",
-   "tag": "red"
+   "tag": "red",
+   "visual": {
+    "type": "flag",
+    "tone": "red"
+   }
   },
   {
    "title": "משהו חדש כל עונה",
-   "tag": "green"
+   "tag": "green",
+   "visual": {
+    "type": "flag",
+    "tone": "green"
+   }
   }
  ],
  "cta": {
@@ -36,5 +52,18 @@
   "#הומורלעסקים",
   "#ירושלים",
   "#getperko"
- ]
+ ],
+ "hookVisual": {
+  "type": "flag",
+  "tone": "red"
+ },
+ "ctaVisual": {
+  "type": "chat",
+  "lines": [
+   {
+    "text": "חייב לראות את זה",
+    "me": true
+   }
+  ]
+ }
 }

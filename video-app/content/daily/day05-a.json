@@ -7,11 +7,20 @@
  "hookAccent": "״אין לי זמן לשיווק.״",
  "items": [
   {
-   "title": "אין לי זמן לשיווק"
+   "title": "אין לי זמן לשיווק",
+   "visual": {
+    "type": "stamp",
+    "text": "מיתוס",
+    "tone": "red"
+   }
   },
   {
    "title": "שיווק יכול להיות קטן",
-   "body": "דקה ביום עם הלקוחות שכבר כאן."
+   "body": "דקה ביום עם הלקוחות שכבר כאן.",
+   "visual": {
+    "type": "phone",
+    "shot": "discover"
+   }
   }
  ],
  "cta": {
@@ -27,5 +36,13 @@
   "#נאמנותלקוחות",
   "#ירושלים",
   "#getperko"
- ]
+ ],
+ "hookVisual": {
+  "type": "clock",
+  "time": "23:00"
+ },
+ "ctaVisual": {
+  "type": "phone",
+  "shot": "wallet"
+ }
 }
