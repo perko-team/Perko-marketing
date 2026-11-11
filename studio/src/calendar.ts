@@ -7,15 +7,12 @@ type View = 'month' | 'week';
 const MOVABLE = new Set(['scheduled', 'missed', 'failed']);
 const LEAD_MS = 5 * 60e3;
 /** For a reel dropped on today after its time has passed: the next whole hour from now (20:00 -> 21:00,
- *  20:10 -> 21:00), or null when no whole hour is left today. */
-function nextRoundHour(day: string): string | null {
+ *  20:10 -> 21:00). After 23:00 that is midnight, the start of tomorrow. Null for days before today. */
+function nextRoundHour(day: string): { day: string; time: string } | null {
   if (day !== today()) return null;
   const now = new Date(Date.now() + LEAD_MS);
-  const [h, m] = hhmm(now).split(':').map(Number);
-  void m;
-  const next = h! + 1;
-  if (next > 23) return null;
-  return `${String(next).padStart(2, '0')}:00`;
+  const next = Number(hhmm(now).slice(0, 2)) + 1;
+  return next > 23 ? { day: addDays(day, 1), time: '00:00' } : { day, time: `${String(next).padStart(2, '0')}:00` };
 }
 
 let data: ReelsResponse | null = null;
@@ -167,8 +164,8 @@ async function move(id: string, day: string, time: string, undo = false) {
   let bumped = false;
   if (when.getTime() < Date.now() + LEAD_MS) {
     const nh = nextRoundHour(day);
-    if (!nh) return toast(day === today() ? 'לא נשארו היום שעות לפרסום. בחרו יום אחר.' : 'אי אפשר לתזמן ליום שכבר עבר.');
-    time = nh; when = zoned(day, time); bumped = true;
+    if (!nh) return toast('אי אפשר לתזמן ליום שכבר עבר. גררו להיום או ליום אחר בעתיד.');
+    day = nh.day; time = nh.time; when = zoned(day, time); bumped = true;
   }
   if (when.toISOString() === new Date(before).toISOString()) return;
   const prevStatus = r.status;
