@@ -50,7 +50,12 @@ alter table reels.settings enable row level security;
 alter table reels.log enable row level security;
 insert into reels.settings values ('paused', 'false'::jsonb) on conflict do nothing;
 create extension if not exists pg_cron;
-create extension if not exists pg_net;
+do $$ begin
+  if exists (select 1 from pg_extension e join pg_namespace n on n.oid = e.extnamespace where e.extname = 'pg_net' and n.nspname = 'public') then
+    drop extension pg_net;
+  end if;
+end $$;
+create extension if not exists pg_net with schema extensions;
 `;
 
 // ---------- helpers ----------
@@ -91,7 +96,7 @@ async function signMany(paths: string[], expiresIn = 3600): Promise<Record<strin
   return out;
 }
 async function signUpload(path: string) {
-  const r = await storage(`/object/upload/sign/${BUCKET}/${path}`, { method: 'POST', headers: { 'x-upsert': 'true' } });
+  const r = await storage(`/object/upload/sign/${BUCKET}/${path}`, { method: 'POST', body: '{}', headers: { 'x-upsert': 'true' } });
   if (!r.ok) throw new Error(`sign upload ${path}: ${r.status} ${await r.text()}`);
   return `${SB}/storage/v1${(await r.json()).url}`;
 }
@@ -199,7 +204,7 @@ Deno.serve(async (req) => {
       if (path === '/cron') return json(200, { ok: true, did: await tick() });
       if (path === '/admin/setup') {
         await sql.unsafe(SCHEMA);
-        const b = await storage('/bucket', { method: 'POST', body: JSON.stringify({ id: BUCKET, name: BUCKET, public: false, file_size_limit: 104857600 }) });
+        const b = await storage('/bucket', { method: 'POST', body: JSON.stringify({ id: BUCKET, name: BUCKET, public: false }) });
         const token = req.headers.get('x-reels-admin')!;
         const [v] = await sql`select id from vault.secrets where name = 'reels_admin_token'`;
         if (v) await sql`select vault.update_secret(${v.id}, ${token})`; else await sql`select vault.create_secret(${token}, 'reels_admin_token')`;
