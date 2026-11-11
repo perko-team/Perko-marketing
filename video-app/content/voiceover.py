@@ -23,7 +23,7 @@ TRIM = ('silenceremove=start_periods=1:start_threshold=-45dB:start_silence=0.05:
         'stop_periods=-1:stop_duration=0.3:stop_threshold=-45dB:stop_silence=0.25')
 
 
-SPOKEN = {r'\b3 דברים': 'שלושה דברים'}  # digits are read in the wrong gender or not at all
+SPOKEN = {r'\b2 ': 'שני ', r'\b3 ': 'שלושה ', r'\b4 ': 'ארבעה '}  # digits on screen, words in the voice (masculine nouns so far)
 
 
 def clean(t):
