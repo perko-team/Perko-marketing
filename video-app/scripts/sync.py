@@ -28,14 +28,14 @@ def put(url, path, ctype):
 
 
 def main():
-    p = argparse.ArgumentParser(); p.add_argument('--reschedule', action='store_true'); p.add_argument('--no-upload', action='store_true')
+    p = argparse.ArgumentParser(); p.add_argument('--reschedule', action='store_true'); p.add_argument('--no-upload', action='store_true'); p.add_argument('--only', nargs='*', help='upload only these reels, e.g. day01-a')
     a = p.parse_args()
     if not os.environ.get('REELS_ADMIN_TOKEN'):
         sys.exit('REELS_ADMIN_TOKEN is not set')
     reels, upload = [], []
     for sid, at in schedule():
         reels.append({'id': sid, 'spec': json.loads((SPECS / f'{sid}.json').read_text()), 'scheduled_at': at.isoformat()})
-        if not a.no_upload and (RENDERS / f'{sid}.mp4').exists() and (RENDERS / f'{sid}-cover.jpg').exists():
+        if not a.no_upload and (not a.only or sid in a.only) and (RENDERS / f'{sid}.mp4').exists() and (RENDERS / f'{sid}-cover.jpg').exists():
             upload.append(sid)
     res = call('/admin/sync', {'reels': reels, 'reschedule': a.reschedule, 'upload': upload})['reels']
     for sid in [r['id'] for r in reels]:

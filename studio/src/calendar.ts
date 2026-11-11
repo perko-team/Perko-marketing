@@ -6,6 +6,17 @@ import { DAYS, MONTHS, addDays, dayKey, dayNum, hhmm, longDay, monthKey, shortDa
 type View = 'month' | 'week';
 const MOVABLE = new Set(['scheduled', 'missed', 'failed']);
 const LEAD_MS = 5 * 60e3;
+/** For a reel dropped on today after its time has passed: the next whole hour from now (20:00 -> 21:00,
+ *  20:10 -> 21:00), or null when no whole hour is left today. */
+function nextRoundHour(day: string): string | null {
+  if (day !== today()) return null;
+  const now = new Date(Date.now() + LEAD_MS);
+  const [h, m] = hhmm(now).split(':').map(Number);
+  void m;
+  const next = h! + 1;
+  if (next > 23) return null;
+  return `${String(next).padStart(2, '0')}:00`;
+}
 
 let data: ReelsResponse | null = null;
 let view: View = (() => { try { return (localStorage.getItem('studio-view') as View) || 'month'; } catch { return 'month'; } })();
@@ -152,8 +163,13 @@ function markSelected() { document.querySelectorAll('.chip').forEach((c) => c.cl
 async function move(id: string, day: string, time: string, undo = false) {
   const r = byId(id);
   const before = r.scheduled_at;
-  const when = zoned(day, time);
-  if (when.getTime() < Date.now() + LEAD_MS) return toast('אי אפשר לתזמן לזמן שכבר עבר. בחרו יום ושעה בעתיד.');
+  let when = zoned(day, time);
+  let bumped = false;
+  if (when.getTime() < Date.now() + LEAD_MS) {
+    const nh = nextRoundHour(day);
+    if (!nh) return toast(day === today() ? 'לא נשארו היום שעות לפרסום. בחרו יום אחר.' : 'אי אפשר לתזמן ליום שכבר עבר.');
+    time = nh; when = zoned(day, time); bumped = true;
+  }
   if (when.toISOString() === new Date(before).toISOString()) return;
   const prevStatus = r.status;
   r.scheduled_at = when.toISOString(); r.status = 'scheduled';
@@ -162,7 +178,7 @@ async function move(id: string, day: string, time: string, undo = false) {
     await moveReel(id, r.scheduled_at);
     const clash = data!.reels.some((x) => x.id !== id && reelDay(x) === day && reelTime(x) === time);
     if (undo) return toast(`הוחזר ל${longDay(day)} ב-${time}.`);
-    toast(`״${esc(r.spec.hook)}״ יעלה ב${longDay(day)} ב-${time}.${clash ? ' שימו לב: יש עוד רילס באותה שעה.' : ''}`,
+    toast(`״${esc(r.spec.hook)}״ יעלה ב${longDay(day)} ב-${time}.${bumped ? ' השעה המקורית כבר עברה, אז הוא עבר לשעה העגולה הבאה.' : ''}${clash ? ' שימו לב: יש עוד רילס באותה שעה.' : ''}`,
       Date.parse(before) > Date.now() + LEAD_MS ? { label: 'ביטול', run: () => move(id, dayKey(new Date(before)), hhmm(new Date(before)), true) } : undefined);
   } catch (e) {
     r.scheduled_at = before; r.status = prevStatus; render();
@@ -214,7 +230,7 @@ function wire() {
     drag.ghost.style.visibility = '';
     if (drag.over && drag.over !== cell) drag.over.classList.remove('drop-ok', 'drop-no');
     if (cell) {
-      const ok = zoned(cell.dataset.day!, reelTime(byId(drag.id))).getTime() > Date.now() + LEAD_MS;
+      const ok = zoned(cell.dataset.day!, reelTime(byId(drag.id))).getTime() > Date.now() + LEAD_MS || nextRoundHour(cell.dataset.day!) != null;
       cell.classList.toggle('drop-ok', ok); cell.classList.toggle('drop-no', !ok);
     }
     drag.over = cell;
