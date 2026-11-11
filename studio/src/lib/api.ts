@@ -6,7 +6,7 @@ export const DEMO = import.meta.env.DEV && new URLSearchParams(location.search).
 
 export type Status = 'scheduled' | 'processing' | 'published' | 'failed' | 'missed';
 export interface Spec {
-  id: string; format: 'tips' | 'myth' | 'pov' | 'flags'; topic: string; hook: string; hookAccent: string;
+  id: string; format: 'tips' | 'myth' | 'pov' | 'flags'; topic: string; hookType?: string; hook: string; hookAccent: string;
   items: { title: string; body?: string; tag?: string }[]; cta: { big: string; accent: string; mono: string };
   caption: string; hashtags: string[]; music: number;
 }

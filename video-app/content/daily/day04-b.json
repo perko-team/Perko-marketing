@@ -2,6 +2,7 @@
  "id": "day04-b",
  "format": "flags",
  "topic": "דגלים בעסק",
+ "hookType": "incomplete",
  "hook": "לקוח קבוע",
  "hookAccent": "זה כש...",
  "items": [
@@ -19,8 +20,8 @@
   }
  ],
  "cta": {
-  "big": "עקבו",
-  "accent": "טיפ חדש לעסק כל יום",
+  "big": "שלחו לבעל עסק",
+  "accent": "שצריך לראות את זה",
   "mono": "@getperko"
  },
  "caption": "תייגו את הלקוח הכי קבוע שלכם 🙌",

@@ -21,7 +21,7 @@ SPECS = ROOT / 'content' / 'daily'
 RENDERS = ROOT / 'out' / 'daily'
 LOG = SPECS / 'published.json'
 SCHEDULE = SPECS / 'schedule.json'
-COVER_MS = 1333  # scripts/daily.sh takes the cover still at frame 40 (30 fps)
+COVER_MS = 400  # scripts/daily.sh takes the cover still at frame 12 (30 fps)
 
 
 def die(msg):

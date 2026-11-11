@@ -2,8 +2,9 @@
  "id": "day04-a",
  "format": "tips",
  "topic": "טיפים לעסקים",
- "hook": "שקט בעסק?",
- "hookAccent": "שלושה רעיונות להיום.",
+ "hookType": "symptom",
+ "hook": "שקט בעסק היום?",
+ "hookAccent": "3 דברים לעשות עד הערב.",
  "items": [
   {
    "title": "הודעה לקבועים",

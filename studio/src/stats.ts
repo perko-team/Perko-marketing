@@ -1,5 +1,5 @@
 // Data: how the reels do on Instagram, which formats and slots work, follower growth, and what the publisher did.
-import { getStats, type StatRow, type StatsResponse } from './lib/api';
+import { getReels, getStats, type StatRow, type StatsResponse } from './lib/api';
 import { $, esc, FORMAT, shell, STATUS } from './lib/shell';
 import { dayKey, hhmm, shortDay } from './lib/time';
 
@@ -10,11 +10,14 @@ const avg = (xs: number[]) => (xs.length ? Math.round(xs.reduce((a, b) => a + b,
 const EVENTS: Record<string, string> = { published: 'פורסם', failed: 'נכשל', missed: 'פוספס', moved: 'הוזז', container: 'התחיל לעלות', paused: 'הפרסום הושהה', resumed: 'הפרסום חודש', insights_failed: 'משיכת נתונים נכשלה' };
 
 shell('stats', async () => {
-  const s = await getStats();
-  render(s);
+  const [s, r] = await Promise.all([getStats(), getReels()]);
+  const types = new Map(r.reels.map((x) => [x.id, x.spec.hookType ?? '']));
+  render(s, types);
 });
 
-function render(s: StatsResponse) {
+const HOOK: Record<string, string> = { list: 'רשימה', symptom: 'סימפטום', mistake: 'טעות', stop: 'עצירה', quiz: 'חידון', pov: 'POV', relatable: 'מזדהים', incomplete: 'משפט פתוח' };
+
+function render(s: StatsResponse, types: Map<string, string>) {
   const pub = s.reels.filter((r) => r.status === 'published').sort((a, b) => Date.parse(a.published_at!) - Date.parse(b.published_at!));
   const measured = pub.filter((r) => r.views != null) as (StatRow & { views: number })[];
   const total = measured.reduce((a, r) => a + r.views, 0);
@@ -49,6 +52,8 @@ function render(s: StatsResponse) {
   };
   const fmts = group((r) => r.format, (k) => FORMAT[k] ?? k);
   fmts.length > 0 ? Charts.barList($('#formats'), fmts, { thin: true }) : empty($('#formats'), 'ההשוואה בין הפורמטים תופיע אחרי שרילסים מכמה פורמטים יימדדו.');
+  const hooks = group((r) => types.get(r.id) || 'other', (k) => HOOK[k] ?? 'אחר');
+  hooks.length > 0 ? Charts.barList($('#hooks'), hooks, { thin: true }) : empty($('#hooks'), 'כל רילס מסומן בסוג ההוק שלו. כשיהיו מדידות, כאן יופיע איזה סוג מחזיק הכי טוב אצל הקהל שלנו.');
   const slots = group((r) => r.slot, (k) => `${k}`);
   slots.length > 0 ? Charts.barList($('#slots'), slots, { thin: true }) : empty($('#slots'), 'ההשוואה בין 12:30 ל-19:30 תופיע אחרי המדידות הראשונות.');
 

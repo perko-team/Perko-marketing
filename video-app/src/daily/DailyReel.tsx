@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { createContext, useContext } from 'react';
 import { AbsoluteFill, Audio, Sequence, interpolate, staticFile, useCurrentFrame } from 'remotion';
 import { z } from 'zod';
 import { C } from '../tokens';
@@ -18,18 +18,39 @@ export const spec = z.object({
   id: z.string(),
   format: z.enum(['tips', 'myth', 'pov', 'flags']),
   topic: z.string(), // HUD label, e.g. "טיפים לעסקים"
-  hook: z.string(), // impact words, 1-3 words, no digits
+  hookType: z.string().optional(), // content/HOOKS.md
+  hook: z.string(), // impact words, 1-4 words, on screen from frame 0
   hookAccent: z.string(), // the human line under the hook
   items: z.array(z.object({ title: z.string(), body: z.string().optional(), tag: z.string().optional() })).min(1).max(4),
   cta: z.object({ big: z.string(), accent: z.string(), mono: z.string() }),
   music: z.number().int().min(1).max(4),
   caption: z.string(),
   hashtags: z.array(z.string()).max(5),
+  // narration (content/voiceover.py): one clip per scene (hook, each item, cta) in public/daily/vo/, with its length in seconds
+  vo: z.object({ voice: z.string(), scenes: z.array(z.object({ file: z.string(), dur: z.number() })) }).optional(),
+  sfx: z.boolean().optional(),
 });
 export type DailySpec = z.infer<typeof spec>;
 
 export const END_LEN = 75;
-export const dailyFrames = (s: DailySpec) => (2 + s.items.length) * BAR + END_LEN;
+const VO_LEAD = 6, VO_TAIL = 12;
+const lead = (i: number) => (i === 0 ? 1 : VO_LEAD); // frames of air before and after a line inside its scene
+/** Each scene is one bar, or as many whole beats as its narration needs. */
+export const sceneLens = (s: DailySpec) => Array.from({ length: s.items.length + 2 }, (_, i) => {
+  const d = s.vo?.scenes[i]?.dur;
+  return d ? Math.max(BAR, Math.ceil((d * 30 + lead(i) + VO_TAIL) / BEAT) * BEAT) : BAR;
+});
+export const dailyFrames = (s: DailySpec) => sceneLens(s).reduce((a, b) => a + b, 0) + END_LEN;
+
+/* A scene longer than a bar plays its entrance and its exit at the normal speed and slows the middle (frames 30-46). */
+const Stretch = createContext(0);
+const A = 30, B = 46;
+const useSF = () => {
+  const f = useCurrentFrame(), extra = useContext(Stretch);
+  if (!extra || f < A) return f;
+  if (f < B + extra) return A + ((f - A) * (B - A)) / (B - A + extra);
+  return f - extra;
+};
 
 type FieldKey = 'ink' | 'paper' | 'lime' | 'tint';
 
@@ -53,6 +74,13 @@ const Words: React.FC<{ text: string; f: number; at: number; size: number; color
     </div>
   );
 };
+/** The hook is on screen whole from the first frame (a muted viewer decides in about a second; see content/HOOKS.md).
+ *  Whole words in one span, so digits keep their order. */
+const Static: React.FC<{ text: string; size: number; color: string }> = ({ text, size, color }) => (
+  <div style={{ display: 'flex', flexWrap: 'wrap', direction: 'rtl', columnGap: size * 0.28, rowGap: size * 0.06 }}>
+    {text.split(' ').map((w, i) => <span key={i} style={{ ...impactStyle(size, color), lineHeight: 1.04, unicodeBidi: 'plaintext' }}>{w}</span>)}
+  </div>
+);
 const ROT: FieldKey[] = ['paper', 'ink', 'tint', 'ink', 'paper'];
 const onField = (k: FieldKey) => (k === 'ink' ? { fg: PAPER, sub: C.onInk, dark: true } : { fg: INK, sub: MUTED, dark: false });
 
@@ -80,17 +108,18 @@ const Out: React.FC<{ f: number; kind: number; to: FieldKey; x?: number; y?: num
 
 /* --- the hook (lime): impact words + accent; a dot in the next scene's colour grows into it --- */
 const Hook: React.FC<{ s: DailySpec; next: FieldKey }> = ({ s, next }) => {
-  const f = useCurrentFrame();
-  const push = drift(f, 2, 1, 1.03, 44);
+  const f = useSF();
+  const punch = 1.14 - 0.14 * snap(f, 0, 0, 1, 7); // lands with a punch-in on frame 0
+  const push = punch * drift(f, 7, 1, 1.03, 40);
   const g = accel(f, 46, 0, 1, 14);
-  const dotIn = snap(f, 12, 0, 1, 8);
+  const dotIn = snap(f, 8, 0, 1, 8);
   return (
     <Field k="lime">
       <Decode f={f} at={1} text={`פרקו / ${s.topic}`} style={{ ...monoStyle(26, MUTED), position: 'absolute', top: 470, right: 90 }} />
       <div style={{ position: 'absolute', top: 560, left: 60, right: 90, transform: `scale(${push})`, transformOrigin: '80% 30%' }}>
-        <Words text={s.hook} f={f} at={2} size={size2(s.hook, 250)} color={INK} />
+        <Static text={s.hook} size={size2(s.hook, 250)} color={INK} />
         <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 14 }}>
-          <WriteOn g={f} at={BEAT + 1} style={{ ...accentStyle(fit(s.hookAccent, 110, 880), INK) }}>{s.hookAccent}</WriteOn>
+          <WriteOn g={f} at={3} style={{ ...accentStyle(fit(s.hookAccent, 110, 880), INK) }}>{s.hookAccent}</WriteOn>
         </div>
       </div>
       <div style={{ position: 'absolute', left: W / 2 - 40, top: 1260, width: 80, height: 80, borderRadius: '50%', background: NEXT[next], transform: `scale(${f < 46 ? dotIn * (1 + 0.05 * Math.sin(f / 3)) : 1 + g * 50})` }} />
@@ -100,7 +129,7 @@ const Hook: React.FC<{ s: DailySpec; next: FieldKey }> = ({ s, next }) => {
 
 /* --- one item per bar; layout depends on the format --- */
 const Item: React.FC<{ s: DailySpec; i: number; k: FieldKey; next: FieldKey }> = ({ s, i, k, next }) => {
-  const f = useCurrentFrame();
+  const f = useSF();
   const it = s.items[i]!;
   const c = onField(k);
   const n = String(i + 1).padStart(2, '0');
@@ -136,7 +165,7 @@ const Item: React.FC<{ s: DailySpec; i: number; k: FieldKey; next: FieldKey }> =
 
 /* --- call to action (lime) --- */
 const Cta: React.FC<{ s: DailySpec }> = ({ s }) => {
-  const f = useCurrentFrame();
+  const f = useSF();
   const push = drift(f, 0, 1, 1.025, 44);
   const g = accel(f, 46, 0, 1, 14);
   return (
@@ -175,21 +204,67 @@ const End: React.FC = () => {
   );
 };
 
+/* Sound effects (music/sfx_fetch.py, Mixkit). trim: frames of lead-in cut off; peak: frames from the cut to the hit,
+   so a hit can be placed on the frame it belongs to; vol: levels them against each other. */
+const FX = {
+  'hook-hit': { trim: 12, peak: 4, vol: 1 }, 'whoosh-1': { trim: 15, peak: 17, vol: 0.6 }, 'whoosh-2': { trim: 2, peak: 1, vol: 1 },
+  'whoosh-3': { trim: 3, peak: 5, vol: 0.5 }, pop: { trim: 0, peak: 1, vol: 0.8 }, 'pop-soft': { trim: 0, peak: 1, vol: 0.4 },
+  wrong: { trim: 0, peak: 7, vol: 0.45 }, right: { trim: 0, peak: 1, vol: 0.55 }, strike: { trim: 1, peak: 9, vol: 1 },
+  rise: { trim: 9, peak: 4, vol: 0.5 }, ding: { trim: 0, peak: 0, vol: 0.7 }, punch: { trim: 0, peak: 2, vol: 1 },
+} as const;
+type Fx = keyof typeof FX;
+/** plays `name` so that its hit lands on frame `hit` */
+const Sfx: React.FC<{ hit: number; name: Fx; gain?: number }> = ({ hit, name, gain = 1 }) => {
+  const x = FX[name];
+  const from = Math.round(hit - x.peak);
+  const cut = x.trim + Math.max(0, -from);
+  return <Sequence from={Math.max(0, from)} durationInFrames={60} layout="none"><Audio src={staticFile(`daily/sfx/${name}.mp3`)} trimBefore={cut} volume={x.vol * gain} /></Sequence>;
+};
+
 export const DailyReel: React.FC<DailySpec> = (s) => {
   const n = s.items.length;
   const fields = s.items.map((_, i) => ROT[i % ROT.length]!);
   const total = dailyFrames(s);
-  const hud: HudScene[] = s.items.map((_, i) => ({ from: (1 + i) * BAR, to: (2 + i) * BAR, tag: s.topic, dark: fields[i] === 'ink' }));
+  const lens = sceneLens(s);
+  const starts = lens.map((_, i) => lens.slice(0, i).reduce((a, b) => a + b, 0));
+  const endAt = starts[n + 1]! + lens[n + 1]!;
+  const hud: HudScene[] = s.items.map((_, i) => ({ from: starts[1 + i]!, to: starts[2 + i]!, tag: s.topic, dark: fields[i] === 'ink' }));
+  const vo = s.vo?.scenes ?? [];
+  const spans = vo.map((v, i) => [starts[i]! + lead(i), starts[i]! + lead(i) + Math.ceil(v.dur * 30)] as const);
+  const music = (f: number) => {
+    const ducked = spans.some(([a, b]) => f >= a - 4 && f <= b + 6);
+    return interpolate(f, [0, total - 20, total], [1, 1, 0], clamp) * (ducked ? 0.28 : vo.length ? 0.7 : 0.85);
+  };
+  const fx = s.sfx !== false;
+  const scene = (i: number, el: React.ReactNode) => (
+    <Sequence key={i} from={starts[i]!} durationInFrames={lens[i]!}><Stretch.Provider value={lens[i]! - BAR}>{el}</Stretch.Provider></Sequence>
+  );
   return (
     <AbsoluteFill style={{ background: INK }}>
-      <Audio src={staticFile(`daily/music-${s.music}.wav`)} volume={(f) => interpolate(f, [0, total - 20, total], [0.85, 0.85, 0], clamp)} />
-      <Sequence from={0} durationInFrames={BAR}><Hook s={s} next={fields[0]!} /></Sequence>
-      {s.items.map((_, i) => (
-        <Sequence key={i} from={(1 + i) * BAR} durationInFrames={BAR}><Item s={s} i={i} k={fields[i]!} next={i === n - 1 ? 'lime' : fields[i + 1]!} /></Sequence>
-      ))}
-      <Sequence from={(1 + n) * BAR} durationInFrames={BAR}><Cta s={s} /></Sequence>
-      <Sequence from={(2 + n) * BAR} durationInFrames={END_LEN}><End /></Sequence>
+      <Audio src={staticFile(`daily/music-${s.music}.wav`)} volume={music} loop trimBefore={BAR} /* skip the loop's quiet intro bar: the beat is there on frame 0 */ />
+      {scene(0, <Hook s={s} next={fields[0]!} />)}
+      {s.items.map((_, i) => scene(1 + i, <Item s={s} i={i} k={fields[i]!} next={i === n - 1 ? 'lime' : fields[i + 1]!} />))}
+      {scene(1 + n, <Cta s={s} />)}
+      <Sequence from={endAt} durationInFrames={END_LEN}><End /></Sequence>
       <Hud916 scenes={hud} label="פרקו - יומי" />
+      {vo.map((v, i) => (
+        <Sequence key={`vo${i}`} from={starts[i]! + lead(i)} durationInFrames={Math.ceil(v.dur * 30) + 10} layout="none"><Audio src={staticFile(`daily/vo/${v.file}`)} volume={1} /></Sequence>
+      ))}
+      {fx && <>
+        <Sfx hit={0} name="hook-hit" />
+        {lens.map((L, i) => <Sfx key={`w${i}`} hit={starts[i]! + L - 10} name={(['whoosh-1', 'whoosh-2', 'whoosh-3'] as const)[i % 3]!} />)}
+        {s.items.map((it, i) => {
+          const at = starts[1 + i]!;
+          if (s.format === 'myth') return i % 2 === 0
+            ? <React.Fragment key={`m${i}`}><Sfx hit={at + 34} name="strike" /><Sfx hit={at + 40} name="wrong" /></React.Fragment>
+            : <Sfx key={`m${i}`} hit={at + 5} name="right" />;
+          if (s.format === 'flags') return <Sfx key={`f${i}`} hit={at + 5} name={it.tag === 'green' ? 'right' : 'wrong'} />;
+          return <Sfx key={`p${i}`} hit={at + 5} name={i % 2 ? 'pop-soft' : 'pop'} />;
+        })}
+        <Sfx hit={starts[1 + n]!} name="rise" />
+        <Sfx hit={starts[1 + n]! + 2 * BEAT} name="ding" gain={0.8} />
+        <Sfx hit={endAt + 24} name="punch" />
+      </>}
     </AbsoluteFill>
   );
 };

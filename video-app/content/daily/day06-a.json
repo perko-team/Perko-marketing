@@ -2,8 +2,9 @@
  "id": "day06-a",
  "format": "tips",
  "topic": "טיפים לעסקים",
- "hook": "כרטיסייה טובה",
- "hookAccent": "עובדת ככה.",
+ "hookType": "mistake",
+ "hook": "הטעות בכרטיסייה",
+ "hookAccent": "שגורמת ללקוחות לוותר באמצע.",
  "items": [
   {
    "title": "יעד שאפשר להשיג",

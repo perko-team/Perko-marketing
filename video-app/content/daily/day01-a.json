@@ -2,8 +2,9 @@
  "id": "day01-a",
  "format": "tips",
  "topic": "טיפים לעסקים",
- "hook": "לקוח חוזר",
- "hookAccent": "שווה יותר מלקוח חדש.",
+ "hookType": "list",
+ "hook": "3 דברים",
+ "hookAccent": "שגורמים ללקוח לחזור מחר.",
  "items": [
   {
    "title": "תזכרו שמות",

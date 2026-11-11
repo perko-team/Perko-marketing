@@ -2,8 +2,9 @@
  "id": "day03-a",
  "format": "tips",
  "topic": "טיפים לעסקים",
- "hook": "לפני שמוציאים",
- "hookAccent": "עוד שקל על פרסום.",
+ "hookType": "stop",
+ "hook": "עצרו.",
+ "hookAccent": "לפני עוד שקל על פרסום.",
  "items": [
   {
    "title": "בדקו מי כבר חוזר",

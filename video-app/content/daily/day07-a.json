@@ -2,8 +2,9 @@
  "id": "day07-a",
  "format": "tips",
  "topic": "טיפים לעסקים",
+ "hookType": "symptom",
  "hook": "ביקורת שלילית?",
- "hookAccent": "ככה עונים.",
+ "hookAccent": "ככה עונים בלי לאבד את הלקוח.",
  "items": [
   {
    "title": "עונים מהר",

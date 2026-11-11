@@ -2,8 +2,9 @@
  "id": "day05-a",
  "format": "myth",
  "topic": "מיתוסים בשיווק",
+ "hookType": "quiz",
  "hook": "מיתוס או אמת?",
- "hookAccent": "על עסקים קטנים.",
+ "hookAccent": "״אין לי זמן לשיווק.״",
  "items": [
   {
    "title": "אין לי זמן לשיווק"

@@ -2,8 +2,9 @@
  "id": "day02-a",
  "format": "myth",
  "topic": "מיתוסים בשיווק",
+ "hookType": "quiz",
  "hook": "מיתוס או אמת?",
- "hookAccent": "על נאמנות לקוחות.",
+ "hookAccent": "״רק הנחה גדולה מחזירה לקוחות.״",
  "items": [
   {
    "title": "צריך הנחה גדולה",
