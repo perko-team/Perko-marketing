@@ -56,7 +56,7 @@ const Phone: React.FC<{ f: number; shot: string; tap?: [number, number] }> = ({ 
   const K = 1.12, w = 412 * K, h = 892 * K;
   const tp = tap ? lin(f, 30, 0, 1, 12) : 0;
   return (
-    <div style={{ position: 'absolute', left: W / 2 - w / 2 - 14, top: 900, transform: `translateY(${y}px) rotate(${r}deg)`, transformOrigin: '50% 100%' }}>
+    <div style={{ position: 'absolute', left: W / 2 - w / 2 - 14, top: 1010, transform: `translateY(${y}px) rotate(${r}deg)`, transformOrigin: '50% 100%' }}>
       <div style={{ width: w + 28, height: h + 28, padding: 14, borderRadius: 74, background: INK, boxShadow: shadow, boxSizing: 'border-box' }}>
         <div style={{ width: w, height: h, borderRadius: 60, overflow: 'hidden', position: 'relative', background: PAPER }}>
           <Img src={staticFile(`shots/${shot}.png`)} style={{ width: w, height: h, display: 'block' }} />
