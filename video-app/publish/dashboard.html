@@ -1,0 +1,402 @@
+<title>Perko Reels Calendar</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;700;800&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: a posting calendar, one column per day (Sunday first), two slots a day; a side sheet edits one reel. */
+:root {
+  --paper: #F8F8F4; --tint: #EBECE4; --line: #D8DACE; --ink: #11130F; --muted: #545A49;
+  --lime: #D7FF35; --on-lime: #11130F; --card: #FFFFFF;
+  --ok: #2F7D32; --ok-bg: #E3F1DF; --warn: #9A5B00; --warn-bg: #FBEFD9; --bad: #B3261E; --bad-bg: #F9E1DE; --off: #6C705F; --off-bg: #E6E7DF;
+  --f-text: "Heebo", "Noto Sans Hebrew", "Arial Hebrew", system-ui, sans-serif;
+  --f-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --paper: #11130F; --tint: #1A1D17; --line: #2C3127; --ink: #EEF0E6; --muted: #A9AE9D; --card: #1F221B;
+  --ok: #8FD18F; --ok-bg: #1D3020; --warn: #F0C070; --warn-bg: #352A14; --bad: #FF9A8F; --bad-bg: #3A1E1B; --off: #8E9382; --off-bg: #262A22;
+  color-scheme: dark } }
+:root[data-theme="dark"] {
+  --paper: #11130F; --tint: #1A1D17; --line: #2C3127; --ink: #EEF0E6; --muted: #A9AE9D; --card: #1F221B;
+  --ok: #8FD18F; --ok-bg: #1D3020; --warn: #F0C070; --warn-bg: #352A14; --bad: #FF9A8F; --bad-bg: #3A1E1B; --off: #8E9382; --off-bg: #262A22;
+  color-scheme: dark }
+
+body { background: var(--paper); color: var(--ink); font-family: var(--f-text); font-size: 15px; line-height: 1.5; }
+.wrap { max-width: 1280px; margin: 0 auto; padding-block: 20px 48px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  display: grid; gap: 18px; }
+h1, h2, h3 { margin: 0; text-wrap: balance; }
+button, input, textarea { font: inherit; color: inherit; }
+button { cursor: pointer; }
+:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+.mono { font-family: var(--f-mono); font-variant-numeric: tabular-nums; }
+
+header.top { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 12px 24px; }
+.brand { display: flex; align-items: center; gap: 12px; }
+.mark { width: 40px; height: 40px; border-radius: 10px; background: var(--lime); color: var(--on-lime); display: grid; place-items: center; font-weight: 800; font-size: 20px; }
+h1 { font-size: 26px; font-weight: 800; letter-spacing: -0.01em; }
+.sub { color: var(--muted); font-size: 14px; }
+
+.summary { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 999px; font-size: 13px; font-weight: 500; background: var(--tint); white-space: nowrap; }
+.chip b { font-family: var(--f-mono); font-weight: 600; }
+.dot { width: 8px; height: 8px; border-radius: 50%; background: currentColor; flex: none; }
+
+.notice { display: flex; gap: 10px; align-items: flex-start; padding: 12px 14px; border-radius: 10px; background: var(--warn-bg); color: var(--warn); font-size: 14px; }
+.notice.ok { background: var(--ok-bg); color: var(--ok); }
+.notice strong { color: inherit; }
+.notice .dot { margin-top: 7px; }
+
+.toolbar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; }
+.weeknav { display: flex; align-items: center; gap: 6px; }
+.btn { border: 1px solid var(--line); background: var(--card); border-radius: 8px; padding: 6px 12px; font-weight: 500; }
+.btn:hover { border-color: var(--muted); }
+.btn.primary { background: var(--lime); color: var(--on-lime); border-color: transparent; font-weight: 700; }
+.btn.danger { color: var(--bad); }
+.btn[disabled] { opacity: .5; cursor: not-allowed; }
+.range { font-weight: 700; font-size: 17px; min-width: 12ch; text-align: center; }
+
+.week { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 8px; }
+.day { background: var(--tint); border-radius: 12px; padding: 10px; display: grid; align-content: start; gap: 8px; min-height: 220px; min-width: 0; }
+.day.today { box-shadow: inset 0 0 0 2px var(--lime); }
+.day.past { opacity: .62; }
+.dhead { display: flex; align-items: baseline; justify-content: space-between; gap: 6px; }
+.dname { font-weight: 700; }
+.ddate { font-family: var(--f-mono); color: var(--muted); font-size: 12px; }
+.empty-day { color: var(--muted); font-size: 13px; padding: 6px 2px; }
+
+.post { display: grid; grid-template-columns: 56px minmax(0, 1fr); gap: 8px; align-items: start; text-align: start; width: 100%;
+  background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 6px; }
+.post:hover { border-color: var(--muted); }
+.thumb { width: 56px; aspect-ratio: 9/16; border-radius: 6px; background: var(--ink) center/cover no-repeat; max-width: 100%; }
+.pmeta { display: grid; gap: 3px; min-width: 0; }
+.ptime { font-family: var(--f-mono); font-weight: 600; font-size: 14px; }
+.ptitle { font-size: 13px; font-weight: 500; line-height: 1.35; overflow-wrap: anywhere; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.post.cancelled .ptitle, .post.cancelled .ptime { text-decoration: line-through; color: var(--off); }
+
+.pill { justify-self: start; font-size: 11px; font-weight: 700; padding: 1px 8px; border-radius: 999px; letter-spacing: .02em; }
+.s-scheduled { background: var(--lime); color: var(--on-lime); }
+.s-cancelled { background: var(--off-bg); color: var(--off); }
+.s-published { background: var(--ok-bg); color: var(--ok); }
+.s-failed { background: var(--bad-bg); color: var(--bad); }
+.s-publishing { background: var(--warn-bg); color: var(--warn); }
+
+.state { padding: 40px 16px; text-align: center; color: var(--muted); background: var(--tint); border-radius: 12px; }
+
+/* side sheet */
+dialog.sheet { border: 0; padding: 0; margin: 0 0 0 auto; height: 100%; max-height: 100%; width: min(560px, 100%); max-width: 100%;
+  background: var(--paper); color: var(--ink); box-shadow: 0 0 40px rgba(0,0,0,.25); }
+dialog.sheet::backdrop { background: rgba(17,19,15,.45); }
+.sheet-in { display: grid; gap: 16px; padding-block: max(18px, env(safe-area-inset-top, 0px)) max(24px, env(safe-area-inset-bottom, 0px));
+  padding-left: max(18px, env(safe-area-inset-left, 0px)); padding-right: max(18px, env(safe-area-inset-right, 0px)); }
+.sheet-head { display: flex; justify-content: space-between; align-items: start; gap: 12px; }
+.sheet-head h2 { font-size: 20px; font-weight: 800; }
+.close { border: 0; background: var(--tint); width: 34px; height: 34px; border-radius: 50%; font-size: 18px; flex: none; }
+.media { display: grid; grid-template-columns: minmax(0, 200px) minmax(0, 1fr); gap: 16px; align-items: start; }
+.media video { width: 100%; aspect-ratio: 9/16; border-radius: 10px; background: #000; max-width: 100%; }
+.novideo { width: 100%; aspect-ratio: 9/16; border-radius: 10px; background: var(--tint); color: var(--muted); display: grid; place-items: center; text-align: center; font-size: 13px; padding: 10px; }
+.facts { display: grid; gap: 8px; font-size: 14px; align-content: start; }
+.facts dt { color: var(--muted); font-size: 12px; }
+.facts dd { margin: 0 0 4px; overflow-wrap: anywhere; }
+.facts a { color: inherit; }
+.field { display: grid; gap: 6px; }
+.field label { font-weight: 700; font-size: 14px; }
+.row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+input[type=date], input[type=time], textarea { background: var(--card); border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; width: 100%; box-sizing: border-box; }
+textarea { min-height: 170px; resize: vertical; line-height: 1.55; }
+.counter { font-size: 12px; color: var(--muted); display: flex; gap: 14px; flex-wrap: wrap; }
+.counter .over { color: var(--bad); font-weight: 700; }
+.actions { display: flex; flex-wrap: wrap; gap: 8px; justify-content: space-between; }
+.actions .group { display: flex; gap: 8px; flex-wrap: wrap; }
+.msg { font-size: 13px; min-height: 1.5em; }
+.msg.err { color: var(--bad); }
+.msg.good { color: var(--ok); }
+.confirm { display: grid; gap: 8px; padding: 12px; border-radius: 10px; background: var(--bad-bg); color: var(--bad); font-size: 14px; }
+
+@media (max-width: 900px) {
+  .week { grid-template-columns: minmax(0, 1fr); }
+  .day { min-height: 0; }
+  .day .list { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 8px; }
+}
+@media (max-width: 480px) {
+  .media { grid-template-columns: minmax(0, 1fr); }
+  .media video, .novideo { max-width: 240px; justify-self: center; }
+  .row2 { grid-template-columns: 1fr; }
+}
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+
+<div class="wrap" dir="rtl" lang="he">
+  <header class="top">
+    <div class="brand">
+      <div class="mark" aria-hidden="true">P</div>
+      <div>
+        <h1>לוח הסרטונים של Perko</h1>
+        <div class="sub">שני Reels ביום לאינסטגרם, שעון ישראל</div>
+      </div>
+    </div>
+    <div class="summary" id="summary"></div>
+  </header>
+
+  <div id="notices"></div>
+
+  <div class="toolbar">
+    <div class="weeknav">
+      <button class="btn" id="prev" aria-label="שבוע קודם">→</button>
+      <div class="range" id="range">-</div>
+      <button class="btn" id="next" aria-label="שבוע הבא">←</button>
+      <button class="btn" id="todayBtn">השבוע</button>
+    </div>
+    <div class="sub" id="nextUp"></div>
+  </div>
+
+  <div id="board"><div class="state" id="loading">טוען את הלוח...</div></div>
+</div>
+
+<dialog class="sheet" id="sheet" dir="rtl" lang="he" aria-labelledby="sTitle">
+  <form class="sheet-in" id="form" method="dialog">
+    <div class="sheet-head">
+      <div>
+        <div class="sub mono" id="sId"></div>
+        <h2 id="sTitle"></h2>
+      </div>
+      <button type="button" class="close" id="closeBtn" aria-label="סגירה">×</button>
+    </div>
+    <div class="media">
+      <div id="sVideo"></div>
+      <dl class="facts" id="sFacts"></dl>
+    </div>
+    <div class="row2">
+      <div class="field"><label for="fDate">תאריך</label><input type="date" id="fDate" required></div>
+      <div class="field"><label for="fTime">שעה (ישראל)</label><input type="time" id="fTime" required step="300"></div>
+    </div>
+    <div class="field">
+      <label for="fCaption">כיתוב והאשטגים</label>
+      <textarea id="fCaption" dir="rtl"></textarea>
+      <div class="counter" id="counter"></div>
+    </div>
+    <div id="confirmBox" hidden></div>
+    <div class="actions">
+      <div class="group">
+        <button type="submit" class="btn primary" id="saveBtn">שמירה</button>
+        <button type="button" class="btn" id="resetCap">החזרת הכיתוב המקורי</button>
+      </div>
+      <button type="button" class="btn danger" id="toggleBtn"></button>
+    </div>
+    <div class="msg" id="msg" role="status"></div>
+  </form>
+</dialog>
+
+<script>
+(() => {
+  const DAYS = ['ראשון', 'שני', 'שלישי', 'רביעי', 'חמישי', 'שישי', 'שבת'];
+  const STATUS = { scheduled: 'מתוזמן', cancelled: 'בוטל', published: 'פורסם', failed: 'נכשל', publishing: 'בפרסום' };
+  const FORMAT = { tips: 'טיפים', myth: 'מיתוס או אמת', pov: 'POV', flags: 'דגלים' };
+  const MAX_CAPTION = 2200, MAX_TAGS = 30;
+  const $ = (id) => document.getElementById(id);
+
+  let db = null, canWrite = false, reels = [], status = null, weekStart = null, openId = null, userMoved = false;
+
+  // ---- dates, all in Israel time ----
+  const TZ = 'Asia/Jerusalem';
+  const nowParts = () => {
+    const p = Object.fromEntries(new Intl.DateTimeFormat('en-CA', { timeZone: TZ, year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' })
+      .formatToParts(new Date()).map((x) => [x.type, x.value]));
+    return { date: `${p.year}-${p.month}-${p.day}`, time: `${p.hour}:${p.minute}` };
+  };
+  const toUTC = (iso) => { const [y, m, d] = iso.split('-').map(Number); return new Date(Date.UTC(y, m - 1, d)); };
+  const fromUTC = (dt) => dt.toISOString().slice(0, 10);
+  const addDays = (iso, n) => { const d = toUTC(iso); d.setUTCDate(d.getUTCDate() + n); return fromUTC(d); };
+  const sundayOf = (iso) => addDays(iso, -toUTC(iso).getUTCDay());
+  const dm = (iso) => { const [, m, d] = iso.split('-'); return `${+d}.${+m}`; };
+  const key = (r) => `${r.date}T${r.time}`;
+  const isPast = (r) => { const n = nowParts(); return key(r) < `${n.date}T${n.time}`; };
+
+  const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const tagCount = (t) => (t.match(/#[^\s#]+/g) || []).length;
+
+  // ---- render ----
+  function renderSummary() {
+    const c = { scheduled: 0, cancelled: 0, published: 0, failed: 0 };
+    reels.forEach((r) => { c[r.status] = (c[r.status] || 0) + 1; });
+    $('summary').innerHTML = [
+      ['scheduled', 'מתוזמנים'], ['published', 'פורסמו'], ['failed', 'נכשלו'], ['cancelled', 'בוטלו'],
+    ].filter(([k]) => k === 'scheduled' || c[k]).map(([k, l]) => `<span class="chip s-${k}"><span class="dot"></span>${l} <b>${c[k] || 0}</b></span>`).join('');
+    const up = reels.filter((r) => r.status === 'scheduled' && !isPast(r)).sort((a, b) => key(a).localeCompare(key(b)))[0];
+    $('nextUp').textContent = up ? `הבא בתור: יום ${DAYS[toUTC(up.date).getUTCDay()]} ${dm(up.date)} ב-${up.time}` : '';
+  }
+
+  function renderNotices() {
+    const n = [];
+    const ig = status?.instagram;
+    if (!ig?.connected) {
+      n.push(`<div class="notice"><span class="dot"></span><div><strong>חשבון האינסטגרם עוד לא מחובר.</strong> ${esc(ig?.note || 'הטוקן תקף, אבל לא משויך אליו חשבון אינסטגרם עסקי. אחרי השיוך ב-Business Manager נבדוק שוב.')}</div></div>`);
+    } else {
+      n.push(`<div class="notice ok"><span class="dot"></span><div><strong>מחובר ל-@${esc(ig.username)}.</strong> ${esc(ig.note || '')}</div></div>`);
+    }
+    if (status && !status.scheduler?.active) {
+      n.push(`<div class="notice"><span class="dot"></span><div><strong>הפרסום האוטומטי כבוי.</strong> ${esc(status.scheduler?.note || 'שום דבר לא יפורסם עד שתאשר להפעיל אותו. בינתיים אפשר לבדוק, לשנות ולבטל.')}</div></div>`);
+    }
+    $('notices').innerHTML = n.join('');
+    $('notices').style.display = n.length ? 'grid' : 'none';
+    $('notices').style.gap = '8px';
+  }
+
+  function renderWeek() {
+    const today = nowParts().date;
+    $('range').textContent = `${dm(weekStart)} - ${dm(addDays(weekStart, 6))}`;
+    const cols = [];
+    for (let i = 0; i < 7; i++) {
+      const date = addDays(weekStart, i);
+      const items = reels.filter((r) => r.date === date).sort((a, b) => a.time.localeCompare(b.time));
+      const list = items.length ? items.map(card).join('') : '<div class="empty-day">אין פרסומים</div>';
+      cols.push(`<section class="day${date === today ? ' today' : ''}${date < today ? ' past' : ''}" aria-label="יום ${DAYS[i]} ${dm(date)}">
+        <div class="dhead"><span class="dname">${DAYS[i]}</span><span class="ddate">${dm(date)}</span></div>
+        <div class="list">${list}</div></section>`);
+    }
+    $('board').innerHTML = `<div class="week">${cols.join('')}</div>`;
+  }
+
+  function card(r) {
+    const thumb = r.cover ? `style="background-image:url('${esc(r.cover)}')"` : '';
+    return `<button type="button" class="post ${esc(r.status)}" data-id="${esc(r.id)}">
+      <span class="thumb" ${thumb} aria-hidden="true"></span>
+      <span class="pmeta">
+        <span class="ptime">${esc(r.time)}</span>
+        <span class="ptitle">${esc(r.title)}</span>
+        <span class="pill s-${esc(r.status)}">${STATUS[r.status] || esc(r.status)}</span>
+      </span></button>`;
+  }
+
+  function render() {
+    renderSummary(); renderNotices();
+    if (!reels.length) {
+      $('board').innerHTML = '<div class="state">עוד אין סרטונים בלוח. אחרי הרינדור של השבוע הם יופיעו כאן, שניים בכל יום: 12:30 ו-19:30.</div>';
+      return;
+    }
+    renderWeek();
+    if (openId) fillSheet(reels.find((r) => r.id === openId), false);
+  }
+
+  // ---- sheet ----
+  const sheet = $('sheet');
+  function openSheet(id) {
+    const r = reels.find((x) => x.id === id); if (!r) return;
+    openId = id; fillSheet(r, true); $('msg').textContent = ''; $('msg').className = 'msg'; $('confirmBox').hidden = true;
+    if (!sheet.open) sheet.showModal();
+  }
+  function fillSheet(r, resetInputs) {
+    if (!r) return;
+    $('sId').textContent = `${r.id} · ${FORMAT[r.format] || r.format || ''}`;
+    $('sTitle').textContent = r.title;
+    const v = $('sVideo');
+    if (resetInputs) v.innerHTML = r.video
+      ? `<video controls playsinline preload="metadata" src="${esc(r.video)}" ${r.cover ? `poster="${esc(r.cover)}"` : ''}></video>`
+      : '<div class="novideo">הסרטון עוד לא הועלה</div>';
+    const facts = [['סטטוס', `<span class="pill s-${esc(r.status)}">${STATUS[r.status] || esc(r.status)}</span>`]];
+    if (r.duration) facts.push(['אורך', `<span class="mono">${(+r.duration).toFixed(1)} שניות</span>`]);
+    if (r.permalink) facts.push(['באינסטגרם', `<a href="${esc(r.permalink)}" target="_blank" rel="noopener">לפוסט</a>`]);
+    if (r.error) facts.push(['שגיאה', esc(r.error)]);
+    if (r.edited_at) facts.push(['נערך', `<span class="mono">${esc(new Date(r.edited_at).toLocaleString('he-IL', { timeZone: TZ }))}</span>`]);
+    $('sFacts').innerHTML = facts.map(([k, v]) => `<div><dt>${k}</dt><dd>${v}</dd></div>`).join('');
+    if (resetInputs) { $('fDate').value = r.date; $('fTime').value = r.time; $('fCaption').value = r.caption || ''; }
+    const locked = !canWrite || r.status === 'published' || r.status === 'publishing';
+    ['fDate', 'fTime', 'fCaption', 'saveBtn', 'resetCap', 'toggleBtn'].forEach((id) => { $(id).disabled = locked; });
+    $('toggleBtn').textContent = r.status === 'cancelled' ? 'החזרה ללוח' : 'ביטול הפרסום';
+    $('toggleBtn').className = r.status === 'cancelled' ? 'btn' : 'btn danger';
+    $('toggleBtn').hidden = r.status === 'published';
+    updateCounter();
+    if (!canWrite) setMsg('צפייה בלבד: אין לך הרשאה לשנות את הלוח.', '');
+  }
+  function updateCounter() {
+    const t = $('fCaption').value, n = t.length, h = tagCount(t);
+    $('counter').innerHTML = `<span class="${n > MAX_CAPTION ? 'over' : ''}"><span class="mono">${n}</span> / ${MAX_CAPTION} תווים</span>
+      <span class="${h > MAX_TAGS ? 'over' : ''}"><span class="mono">${h}</span> / ${MAX_TAGS} האשטגים</span>`;
+  }
+  function setMsg(t, kind) { $('msg').textContent = t; $('msg').className = 'msg' + (kind ? ' ' + kind : ''); }
+  const close = () => { sheet.close(); openId = null; };
+
+  $('closeBtn').addEventListener('click', close);
+  sheet.addEventListener('click', (e) => { if (e.target === sheet) close(); });
+  sheet.addEventListener('close', () => { openId = null; const v = sheet.querySelector('video'); if (v) v.pause(); });
+  $('fCaption').addEventListener('input', updateCounter);
+  $('resetCap').addEventListener('click', () => {
+    const r = reels.find((x) => x.id === openId); if (!r) return;
+    $('fCaption').value = r.caption_original || r.caption || ''; updateCounter(); setMsg('הכיתוב המקורי הוחזר. לחצו שמירה כדי לשמור.', '');
+  });
+
+  $('form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const r = reels.find((x) => x.id === openId); if (!r || !db) return;
+    const date = $('fDate').value, time = $('fTime').value, caption = $('fCaption').value.trim();
+    if (!date || !time) return setMsg('צריך תאריך ושעה.', 'err');
+    if (caption.length > MAX_CAPTION) return setMsg(`הכיתוב ארוך מדי: ${caption.length} תווים, המקסימום ${MAX_CAPTION}.`, 'err');
+    if (tagCount(caption) > MAX_TAGS) return setMsg(`יותר מדי האשטגים: המקסימום ${MAX_TAGS}.`, 'err');
+    if (r.status === 'scheduled' && isPast({ date, time })) return setMsg('המועד הזה כבר עבר. בחרו מועד עתידי.', 'err');
+    const clash = reels.find((x) => x.id !== r.id && x.status === 'scheduled' && x.date === date && x.time === time);
+    if (clash) return setMsg(`כבר מתוזמן סרטון אחר באותה שעה (${clash.id}). בחרו שעה אחרת.`, 'err');
+    if (date === r.date && time === r.time && caption === (r.caption || '')) return setMsg('אין שינויים לשמור.', '');
+    $('saveBtn').disabled = true; setMsg('שומר...', '');
+    try {
+      const patch = { date, time, caption, edited_at: new Date().toISOString() };
+      if (r.status === 'failed') { patch.status = 'scheduled'; patch.error = null; }
+      await db.doc('reels/' + r.id).update(patch);
+      setMsg('נשמר.', 'good');
+      if (date !== r.date) { weekStart = sundayOf(date); userMoved = true; }
+    } catch (err) { setMsg(writeError(err), 'err'); }
+    finally { $('saveBtn').disabled = !canWrite; }
+  });
+
+  $('toggleBtn').addEventListener('click', async () => {
+    const r = reels.find((x) => x.id === openId); if (!r || !db) return;
+    if (r.status === 'cancelled') {
+      if (isPast(r)) return setMsg('המועד שלו כבר עבר. קבעו תאריך ושעה חדשים, שמרו, ואז החזירו ללוח.', 'err');
+      return writeStatus(r, 'scheduled', 'הוחזר ללוח.');
+    }
+    const box = $('confirmBox');
+    box.className = 'confirm'; box.hidden = false;
+    box.innerHTML = `<div>לבטל את הפרסום של ״${esc(r.title)}״ ב-${dm(r.date)} ${esc(r.time)}? הסרטון יישאר בלוח ואפשר להחזיר אותו.</div>
+      <div class="group" style="display:flex;gap:8px"><button type="button" class="btn danger" id="yesCancel">כן, לבטל</button><button type="button" class="btn" id="noCancel">לא</button></div>`;
+    $('noCancel').onclick = () => { box.hidden = true; };
+    $('yesCancel').onclick = async () => { box.hidden = true; await writeStatus(r, 'cancelled', 'הפרסום בוטל.'); };
+  });
+
+  async function writeStatus(r, s, ok) {
+    try { await db.doc('reels/' + r.id).update({ status: s, edited_at: new Date().toISOString() }); setMsg(ok, 'good'); }
+    catch (err) { setMsg(writeError(err), 'err'); }
+  }
+  function writeError(err) {
+    if (err?.code === 'not_granted') return 'אין הרשאה לשמור. רק מי שיכול לערוך את הלוח יכול לשנות אותו.';
+    if (err?.code === 'unavailable') return 'אין חיבור כרגע. נסו שוב בעוד רגע.';
+    return 'השמירה נכשלה: ' + (err?.message || 'שגיאה לא ידועה');
+  }
+
+  $('board').addEventListener('click', (e) => { const b = e.target.closest('.post'); if (b) openSheet(b.dataset.id); });
+  $('prev').addEventListener('click', () => { weekStart = addDays(weekStart, -7); userMoved = true; render(); });
+  $('next').addEventListener('click', () => { weekStart = addDays(weekStart, 7); userMoved = true; render(); });
+  $('todayBtn').addEventListener('click', () => { weekStart = sundayOf(nowParts().date); userMoved = true; render(); });
+
+  function pickWeek() {
+    if (userMoved) return;
+    const today = nowParts().date;
+    const up = reels.filter((r) => r.date >= today).sort((a, b) => key(a).localeCompare(key(b)))[0];
+    weekStart = sundayOf(up ? up.date : today);
+  }
+
+  // ---- data ----
+  weekStart = sundayOf(nowParts().date);
+  const timer = setTimeout(() => { if (!reels.length) $('board').innerHTML = '<div class="state">הלוח לא נטען. בדקו שאתם מחוברים ל-claude.ai ורעננו את הדף.</div>'; }, 10000);
+
+  (async () => {
+    db = await window.claude?.use?.('db');
+    if (!db) { clearTimeout(timer); $('board').innerHTML = '<div class="state">הלוח זמין רק כשמחוברים ל-claude.ai.</div>'; return; }
+    const user = await window.claude.use('user');
+    canWrite = user ? (user.canEdit() || user.isOwner()) : false;
+    db.collection('reels').onSnapshot((snap) => {
+      clearTimeout(timer);
+      reels = snap.docs.map((d) => ({ id: d.id, ...d.data() })).filter((r) => r.date && r.time);
+      pickWeek(); render();
+    }, (err) => { clearTimeout(timer); $('board').innerHTML = `<div class="state">שגיאה בטעינת הלוח: ${esc(err.message)}</div>`; });
+    db.doc('meta/status').onSnapshot((s) => { status = s.exists ? s.data() : null; renderNotices(); });
+  })();
+})();
+</script>
