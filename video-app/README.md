@@ -45,3 +45,19 @@ for the end card, bells for the wordmark. Mix measured on the render: -16.3 LUFS
 - 18.5 s: פרקו. הצטרפו בחינם לגישה המוקדמת.
 
 When a take exists, place it as in `../video` (cut at its pauses, each line on its beat, voice above the bed).
+
+## Daily reels: render, calendar, publish
+
+```bash
+pip install scipy && python3 music/daily.py   # once: the four music loops (public/daily/, not committed)
+bash scripts/daily.sh 01                      # day 1: out/daily/day01-{a,b}.mp4 + covers
+python3 scripts/dashboard.py                  # out/daily/dashboard.html: the calendar, covers, captions, status
+python3 scripts/publish.py check              # read-only: token, account, publishing quota
+python3 scripts/publish.py publish day01-a    # dry run; add --yes to publish
+python3 scripts/publish.py due --yes          # publish the next reel whose slot has passed (one per run)
+```
+
+The schedule lives in `content/daily/schedule.json` (start date, a time per slot, Saturday skipped).
+Publishing needs `IG_ACCESS_TOKEN` (system user token with `instagram_content_publish`) and `IG_USER_ID`.
+Videos go up as resumable uploads, so no public URL is needed. Each publish is logged in
+`content/daily/published.json`, and a reel that is already logged is never sent again.

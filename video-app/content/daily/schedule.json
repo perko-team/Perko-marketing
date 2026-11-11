@@ -1,0 +1,6 @@
+{
+ "timezone": "Asia/Jerusalem",
+ "start": "2026-11-12",
+ "slots": {"a": "12:30", "b": "19:30"},
+ "skip_weekdays": [5]
+}
