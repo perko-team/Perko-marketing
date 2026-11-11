@@ -166,5 +166,7 @@ for d, (a, b) in enumerate(days, 1):
         if old.exists() and 'vo' in json.loads(old.read_text()):  # keep narration made by content/voiceover.py
             s['vo'] = json.loads(old.read_text())['vo']
         (OUT / f"{s['id']}.json").write_text(json.dumps(s, ensure_ascii=False, indent=1))
-(OUT / 'sample.json').write_text((OUT / 'day01-a.json').read_text())
+# the Studio's default props: no narration, or a reel rendered without its own would inherit this one's
+_sample = json.loads((OUT / 'day01-a.json').read_text()); _sample.pop('vo', None)
+(OUT / 'sample.json').write_text(json.dumps(_sample, ensure_ascii=False, indent=1))
 print(len(days) * 2, 'specs')
