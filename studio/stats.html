@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>נתונים · Perko Studio</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='14' fill='%23D7FF35' stroke='%2311130F' stroke-width='3'/%3E%3Ccircle cx='16' cy='16' r='4' fill='%2311130F'/%3E%3C/svg%3E">
+<script src="/charts.js"></script>
+<script type="module" src="/src/stats.ts"></script>
+</head>
+<body>
+<main class="page stats-page">
+  <div class="titlerow"><div><h1>נתונים</h1><p class="finding" id="finding">טוען...</p></div></div>
+  <section class="card kpis" id="kpis" aria-label="סיכום"></section>
+  <div class="stats-grid">
+    <section class="card span2"><div class="chead"><h2>צפיות לכל רילס</h2><p id="views-note">לפי סדר הפרסום</p></div><div class="chart" id="views" dir="ltr"></div></section>
+    <section class="card"><div class="chead"><h2>סטטוס פרסומים</h2></div><ul class="status-list" id="status"></ul>
+      <h3 class="sub-h">אחרונים</h3><ul class="events" id="events"></ul></section>
+    <section class="card"><div class="chead"><h2>ממוצע צפיות לפי פורמט</h2><p>בסוגריים: כמה רילסים נמדדו</p></div><div class="chart list" id="formats"></div></section>
+    <section class="card"><div class="chead"><h2>ממוצע צפיות לפי שעה</h2><p>שעון ישראל</p></div><div class="chart list" id="slots"></div></section>
+    <section class="card"><div class="chead"><h2>עוקבים</h2><p>מדידה אחת ביום</p></div><div class="chart" id="followers" dir="ltr"></div></section>
+    <section class="card span3"><div class="chead"><h2>כל הרילסים שפורסמו</h2><p>המדידה האחרונה של כל רילס</p></div>
+      <div class="table-wrap"><table><thead><tr><th>פורסם</th><th>רילס</th><th>פורמט</th><th>שעה</th><th class="num">צפיות</th><th class="num">חשיפה</th><th class="num">לייקים</th><th class="num">שמירות</th><th class="num">שיתופים</th></tr></thead>
+      <tbody id="rows"></tbody></table></div></section>
+  </div>
+</main>
+</body>
+</html>

@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>לוח שנה · Perko Studio</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='14' fill='%23D7FF35' stroke='%2311130F' stroke-width='3'/%3E%3Ccircle cx='16' cy='16' r='4' fill='%2311130F'/%3E%3C/svg%3E">
+<script type="module" src="/src/calendar.ts"></script>
+</head>
+<body>
+<main class="page cal-page">
+  <div class="titlerow">
+    <div><h1 id="title">לוח שנה</h1><p class="finding" id="finding">טוען...</p></div>
+    <div class="controls">
+      <span class="pill" id="pubstate"></span>
+      <button type="button" class="btn ghost" id="pause" hidden></button>
+    </div>
+  </div>
+  <div class="toolbar">
+    <div class="nav-btns">
+      <button type="button" class="btn ghost icon-btn" id="prev" aria-label="הקודם">›</button>
+      <button type="button" class="btn ghost" id="today">היום</button>
+      <button type="button" class="btn ghost icon-btn" id="next" aria-label="הבא">‹</button>
+    </div>
+    <div class="seg" role="group" aria-label="תצוגה">
+      <button type="button" data-view="month">חודש</button><button type="button" data-view="week">שבוע</button>
+    </div>
+    <p class="hint">גררו רילס ליום אחר כדי לשנות את מועד הפרסום. השעה נשארת, לפי שעון ישראל.</p>
+  </div>
+  <div class="cal-wrap">
+    <div id="cal" class="cal month" aria-label="לוח פרסומים"></div>
+    <aside class="drawer card" id="drawer" aria-label="פרטי רילס" hidden></aside>
+  </div>
+</main>
+</body>
+</html>
