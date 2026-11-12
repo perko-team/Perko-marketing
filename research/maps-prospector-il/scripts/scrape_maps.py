@@ -131,7 +131,9 @@ def scrape(sector: str, zona: str, max_results: int, enrich_email: bool, headles
     results, seen = [], set()
 
     with sync_playwright() as p:
-        browser = p.chromium.launch(headless=headless)
+        import os
+        exe = os.environ.get("CHROMIUM_PATH")  # a preinstalled Chromium, when Playwright's own download is not there
+        browser = p.chromium.launch(headless=headless, **({"executable_path": exe} if exe else {}))
         ctx = browser.new_context(locale="he-IL", timezone_id="Asia/Jerusalem",
                                   user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36")
         page = ctx.new_page()
@@ -156,7 +158,7 @@ def scrape(sector: str, zona: str, max_results: int, enrich_email: bool, headles
         # scroll the results panel until enough items or no more appear
         prev, tries = 0, 0
         while tries < 15:
-            n = len(page.query_selector_all('[role="feed"] > div[jsaction]'))
+            n = len(page.query_selector_all('[role="feed"] a[href*="/maps/place/"]'))
             if n >= max_results or (n == prev and tries > 3):
                 break
             prev = n
@@ -164,7 +166,7 @@ def scrape(sector: str, zona: str, max_results: int, enrich_email: bool, headles
             delay(1.5, 3)
             tries += 1
 
-        items = page.query_selector_all('[role="feed"] > div[jsaction]')
+        items = page.query_selector_all('[role="feed"] a[href*="/maps/place/"]')
         print(f"[INFO] {len(items)} תוצאות ברשימה")
 
         for i, item in enumerate(items[:max_results]):
@@ -234,7 +236,7 @@ def completeness(r: dict) -> int:
 
 # businesses people come back to, often weekly: where a punch card is natural
 REPEAT = {
-    "קפה": "קפה עשירי עליכם", "בית קפה": "קפה עשירי עליכם", "מאפי": "מאפה מתנה בכל ביקור עשירי", "קונדיטור": "עוגייה מתנה בכל ביקור שמיני",
+    "לחם": "לחמנייה מתנה בכל ביקור עשירי", "קפה": "קפה עשירי עליכם", "בית קפה": "קפה עשירי עליכם", "מאפי": "מאפה מתנה בכל ביקור עשירי", "קונדיטור": "עוגייה מתנה בכל ביקור שמיני",
     "גלידה": "גביע מתנה אחרי תשעה", "מספר": "תספורת שישית בחצי מחיר", "ציפורניים": "טיפול עשירי מתנה", "פיצ": "משולש מתנה בכל ביקור שמיני",
     "שווארמה": "מנה עשירית עליכם", "פלאפל": "מנה עשירית עליכם", "חומוס": "מנה עשירית עליכם", "מיץ": "שייק מתנה אחרי שמונה",
     "ירק": "סל פירות קטן בכל קנייה עשירית", "פרחים": "זר קטן מתנה בכל קנייה שמינית", "מעדני": "מגש קטן מתנה בכל ביקור עשירי",
@@ -247,10 +249,11 @@ CHAINS = ("ארומה", "קפה קפה", "גרג", "לנדוור", "רולדין
 
 
 def reward_for(row: dict) -> str:
-    text = f"{row.get('קטגוריה', '')} {row.get('שם', '')}".lower()
-    for k, v in REPEAT.items():
-        if k in text:
-            return v
+    # the name first ("לחם פיינגולד" is a bakery even when Maps files it as a café), then the category
+    for text in (row.get("שם", "").lower(), row.get("קטגוריה", "").lower()):
+        for k, v in REPEAT.items():
+            if k in text:
+                return v
     return ""
 
 
