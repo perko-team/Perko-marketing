@@ -101,7 +101,8 @@ const Stamp: React.FC<{ f: number; text: string; tone: 'red' | 'lime'; dark: boo
 };
 
 /* ---- a flag on a pole, waving ---- */
-const Flag: React.FC<{ f: number; tone: 'red' | 'green' }> = ({ f, tone }) => {
+const Flag: React.FC<{ f: number; tone: 'red' | 'green'; dark: boolean }> = ({ f, tone, dark }) => {
+  const line = dark ? PAPER : INK; // the pole and the outline read on both fields
   const up = snap(f, 4, 600, 0, 12), col = tone === 'red' ? RED : LIME;
   const pts = Array.from({ length: 13 }, (_, i) => {
     const x = (i / 12) * 420, a = Math.sin(f / 4 - i / 2) * 18 * (i / 12);
@@ -111,20 +112,20 @@ const Flag: React.FC<{ f: number; tone: 'red' | 'green' }> = ({ f, tone }) => {
   const bot = [...pts].reverse().map(([x, a]) => `${x},${a + 260}`).join(' ');
   return (
     <svg width="620" height="640" viewBox="-40 -40 560 640" style={{ position: 'absolute', left: W / 2 - 300, top: 960, transform: `translateY(${up}px)`, overflow: 'visible' }}>
-      <rect x="-22" y="-30" width="22" height="620" rx="10" fill={INK} />
-      <polygon points={`${top} ${bot}`} fill={col} stroke={INK} strokeWidth="8" strokeLinejoin="round" />
+      <rect x="-22" y="-30" width="22" height="620" rx="10" fill={line} />
+      <polygon points={`${top} ${bot}`} fill={col} stroke={line} strokeWidth="8" strokeLinejoin="round" />
     </svg>
   );
 };
 
 /* ---- review stars filling ---- */
-const Stars: React.FC<{ f: number; n: number }> = ({ f, n }) => (
+const Stars: React.FC<{ f: number; n: number; dark: boolean }> = ({ f, n, dark }) => (
   <div style={{ position: 'absolute', left: 0, right: 0, top: 1080, display: 'flex', justifyContent: 'center', gap: 22, direction: 'ltr' }}>
     {Array.from({ length: 5 }, (_, i) => {
       const at = 6 + i * 4, s = snap(f, at, 0, 1, 7), on = i < n;
       return (
         <svg key={i} width="150" height="150" viewBox="0 0 24 24" style={{ transform: `scale(${s})` }}>
-          <path d="M12 2.5l2.9 6.1 6.6.8-4.9 4.6 1.3 6.6L12 17.3 6.1 20.6l1.3-6.6L2.5 9.4l6.6-.8z" fill={on ? LIME : 'transparent'} stroke={INK} strokeWidth="1.6" strokeLinejoin="round" />
+          <path d="M12 2.5l2.9 6.1 6.6.8-4.9 4.6 1.3 6.6L12 17.3 6.1 20.6l1.3-6.6L2.5 9.4l6.6-.8z" fill={on ? LIME : 'transparent'} stroke={dark && !on ? PAPER : INK} strokeWidth="1.6" strokeLinejoin="round" />
         </svg>
       );
     })}
@@ -156,7 +157,7 @@ const Clock: React.FC<{ f: number; time: string; dark: boolean }> = ({ f, time, 
 const Wallet: React.FC<{ f: number; cards: number }> = ({ f, cards }) => {
   const shades = ['#F4E9D8', '#E8F1FA', '#FBE3E1', '#E6F5E9', '#FFF3C4', '#EDE7F6'];
   return (
-    <div style={{ position: 'absolute', left: W / 2 - 360, top: 1040, width: 720, height: 520 }}>
+    <div style={{ position: 'absolute', left: W / 2 - 360, top: 1130, width: 720, height: 520 }}>
       {Array.from({ length: cards }, (_, i) => {
         const at = 4 + i * 2, p = snap(f, at, 0, 1, 10), a = (i - (cards - 1) / 2) * 9;
         return <div key={i} style={{ position: 'absolute', left: 170, top: 40, width: 380, height: 240, borderRadius: 22, background: shades[i % shades.length],
@@ -190,8 +191,8 @@ export const Prop: React.FC<{ v: Visual; f: number; dark: boolean }> = ({ v, f, 
     case 'phone': return <Phone f={f} shot={v.shot} tap={v.tap} />;
     case 'chat': return <Chat f={f} lines={v.lines} />;
     case 'stamp': return <Stamp f={f} text={v.text} tone={v.tone} dark={dark} />;
-    case 'flag': return <Flag f={f} tone={v.tone} />;
-    case 'stars': return <Stars f={f} n={v.n} />;
+    case 'flag': return <Flag f={f} tone={v.tone} dark={dark} />;
+    case 'stars': return <Stars f={f} n={v.n} dark={dark} />;
     case 'clock': return <Clock f={f} time={v.time} dark={dark} />;
     case 'wallet': return <Wallet f={f} cards={v.cards} />;
     case 'receipt': return <Receipt f={f} lines={v.lines} />;

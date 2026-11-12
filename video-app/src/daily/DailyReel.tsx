@@ -140,8 +140,8 @@ const Hook: React.FC<{ s: DailySpec; next: FieldKey }> = ({ s, next }) => {
   return (
     <Field k="lime">
       <Decode f={f} at={1} text={`פרקו / ${s.topic}`} style={{ ...monoStyle(26, MUTED), position: 'absolute', top: 470, right: 90 }} />
-      <div style={{ position: 'absolute', top: 560, left: 60, right: 90, transform: `scale(${push})`, transformOrigin: '80% 30%' }}>
-        <Static text={s.hook} size={size2(s.hook, 250)} color={INK} />
+      <div style={{ position: 'absolute', top: s.hookVisual ? 520 : 560, left: 60, right: 90, transform: `scale(${push})`, transformOrigin: '80% 30%' }}>
+        <Static text={s.hook} size={size2(s.hook, s.hookVisual ? 160 : 250)} color={INK} />
         <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 14 }}>
           <WriteOn g={f} at={3} style={{ ...accentStyle(fit(s.hookAccent, 110, 880), INK) }}>{s.hookAccent}</WriteOn>
         </div>
@@ -204,7 +204,7 @@ const Cta: React.FC<{ s: DailySpec }> = ({ s }) => {
   return (
     <Field k="lime">
       <div style={{ position: 'absolute', top: s.ctaVisual ? 420 : 640, left: 60, right: 60, display: 'flex', flexDirection: 'column', alignItems: 'center', transform: `scale(${push})` }}>
-        <Words text={s.cta.big} f={f} at={1} size={size2(s.cta.big, 230)} color={INK} center />
+        <Words text={s.cta.big} f={f} at={1} size={size2(s.cta.big, s.ctaVisual ? 165 : 230)} color={INK} center />
         <div style={{ marginTop: 26, width: 940, display: 'flex', justifyContent: 'center' }}><WriteOn g={f} at={BEAT} style={accentStyle(fit(s.cta.accent, 92, 900), INK)}>{s.cta.accent}</WriteOn></div>
         <div style={{ marginTop: 50 }}><Decode f={f} at={2 * BEAT} text={s.cta.mono} style={monoStyle(32, MUTED)} /></div>
       </div>
