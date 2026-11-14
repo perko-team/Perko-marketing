@@ -9,5 +9,7 @@ for slot in a b; do
   [ -f "$spec" ] || { echo "missing $spec" >&2; exit 1; }
   npx remotion render DailyReel "out/daily/day${day}-${slot}.mp4" --props="$spec" --codec h264 --crf 20 --log error
   npx remotion still DailyReel "out/daily/day${day}-${slot}-cover.jpg" --props="$spec" --frame 12 --image-format jpeg --log error
+  npx remotion still GridCoverLime "out/daily/day${day}-${slot}-cover-lime.jpg" --props="$spec" --image-format jpeg --log error
+  npx remotion still GridCoverInk "out/daily/day${day}-${slot}-cover-ink.jpg" --props="$spec" --image-format jpeg --log error
   echo "out/daily/day${day}-${slot}.mp4"
 done

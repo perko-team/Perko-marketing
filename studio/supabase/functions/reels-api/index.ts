@@ -43,6 +43,8 @@ create table if not exists reels.account_daily (day date primary key, followers 
 create table if not exists reels.settings (key text primary key, value jsonb not null);
 create table if not exists reels.log (id bigserial primary key, at timestamptz not null default now(), reel_id text, event text not null, detail text);
 create index if not exists reels_due on reels.reels (status, scheduled_at);
+alter table reels.reels add column if not exists grid_covers boolean not null default false;
+alter table reels.reels add column if not exists cover_tone text;
 alter table reels.reels enable row level security;
 alter table reels.insights enable row level security;
 alter table reels.account_daily enable row level security;
@@ -148,11 +150,18 @@ async function tick() {
                   order by scheduled_at limit 1 for update skip locked) returning *`;
     if (due) {
       try {
-        const urls = await signMany([due.video_path, due.cover_path].filter(Boolean), 7200);
+        // grid covers: lime and ink alternate in publish order, so the 3-column profile grid stays a checkerboard
+        let cover = due.cover_path, tone: string | null = null;
+        if (due.grid_covers) {
+          const [last] = await sql`select cover_tone from reels.reels where status = 'published' and cover_tone is not null order by published_at desc limit 1`;
+          tone = last?.cover_tone === 'lime' ? 'ink' : 'lime';
+          cover = `${due.id}-cover-${tone}.jpg`;
+        }
+        const urls = await signMany([due.video_path, cover].filter(Boolean), 7200);
         const p: Record<string, string> = { media_type: 'REELS', video_url: urls[due.video_path], caption: caption(due.spec), share_to_feed: 'true' };
-        if (due.cover_path && urls[due.cover_path]) p.cover_url = urls[due.cover_path]; else p.thumb_offset = '1333';
+        if (cover && urls[cover]) p.cover_url = urls[cover]; else p.thumb_offset = '1333';
         const { id } = await ig('POST', `${igUser}/media`, p);
-        await sql`update reels.reels set container_id = ${id} where id = ${due.id}`;
+        await sql`update reels.reels set container_id = ${id}, cover_tone = ${tone} where id = ${due.id}`;
         await log(due.id, 'container', id); out.push(`started ${due.id}`);
       } catch (e) {
         await sql`update reels.reels set status = 'failed', error = ${String(e)}, updated_at = now() where id = ${due.id}`;
@@ -189,9 +198,12 @@ async function tick() {
 
 // ---------- routes ----------
 async function listReels() {
-  const rows = await sql`select id, spec, scheduled_at, status, cover_path, video_path is not null as has_video, permalink, published_at, error from reels.reels order by scheduled_at`;
-  const covers = await signMany(rows.map((r) => r.cover_path).filter(Boolean), 6 * 3600);
-  return rows.map(({ cover_path, ...r }) => ({ ...r, cover_url: cover_path ? covers[cover_path] ?? null : null }));
+  const rows = await sql`select id, spec, scheduled_at, status, cover_path, grid_covers, cover_tone, video_path is not null as has_video, permalink, published_at, error from reels.reels order by scheduled_at`;
+  // with grid covers, show the one the grid got (published) or the lime one (not yet published)
+  const shown = (r: { id: string; cover_path: string | null; grid_covers: boolean; cover_tone: string | null }) =>
+    r.grid_covers ? `${r.id}-cover-${r.cover_tone ?? 'lime'}.jpg` : r.cover_path;
+  const covers = await signMany(rows.map(shown).filter(Boolean) as string[], 6 * 3600);
+  return rows.map((r) => { const c = shown(r); const { cover_path: _c, grid_covers: _g, ...rest } = r; return { ...rest, cover_url: c ? covers[c] ?? null : null }; });
 }
 
 Deno.serve(async (req) => {
@@ -217,7 +229,7 @@ Deno.serve(async (req) => {
         return json(200, { ok: true, bucket: b.status });
       }
       if (path === '/admin/sync' && req.method === 'POST') {
-        // body: { reels: [{ id, spec, scheduled_at }], reschedule?: boolean, upload?: string[] }
+        // body: { reels: [{ id, spec, scheduled_at }], reschedule?: boolean, upload?: string[], grid?: string[] (also upload lime/ink grid covers) }
         const body = await req.json();
         const res: Record<string, unknown> = {};
         for (const r of body.reels ?? []) {
@@ -231,13 +243,15 @@ Deno.serve(async (req) => {
           res[r.id] = {
             status: row.status, scheduled_at: row.scheduled_at,
             ...(want ? { video_upload: await signUpload(vp), cover_upload: await signUpload(cp) } : {}),
+            ...((body.grid ?? []).includes(r.id) ? { grid_upload: { lime: await signUpload(`${r.id}-cover-lime.jpg`), ink: await signUpload(`${r.id}-cover-ink.jpg`) } } : {}),
           };
         }
         return json(200, { ok: true, reels: res });
       }
       if (path === '/admin/uploaded' && req.method === 'POST') {
-        const { id } = await req.json();
-        await sql`update reels.reels set video_path = ${id + '.mp4'}, cover_path = ${id + '-cover.jpg'}, updated_at = now() where id = ${id}`;
+        const { id, video, grid } = await req.json();
+        if (video !== false) await sql`update reels.reels set video_path = ${id + '.mp4'}, cover_path = ${id + '-cover.jpg'}, updated_at = now() where id = ${id}`;
+        if (grid) await sql`update reels.reels set grid_covers = true, updated_at = now() where id = ${id}`;
         return json(200, { ok: true });
       }
       if (path === '/admin/check') {
