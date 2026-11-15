@@ -104,11 +104,11 @@ async function signUpload(path: string) {
 }
 
 // ---------- instagram ----------
-async function ig(method: 'GET' | 'POST', path: string, params: Record<string, string> = {}) {
+async function ig(method: 'GET' | 'POST' | 'DELETE', path: string, params: Record<string, string> = {}) {
   const token = Deno.env.get('IG_ACCESS_TOKEN');
   if (!token) throw new Error('IG_ACCESS_TOKEN is not set');
   const q = new URLSearchParams({ ...params, access_token: token });
-  const r = method === 'GET' ? await fetch(`${GRAPH}/${path}?${q}`) : await fetch(`${GRAPH}/${path}`, { method, body: q });
+  const r = method === 'POST' ? await fetch(`${GRAPH}/${path}`, { method, body: q }) : await fetch(`${GRAPH}/${path}?${q}`, { method });
   const body = await r.json().catch(() => ({}));
   if (!r.ok || body.error) throw new Error(`${path.split('?')[0]}: ${body.error?.message ?? r.status} (code ${body.error?.code ?? '-'})`);
   return body;
@@ -253,6 +253,15 @@ Deno.serve(async (req) => {
         if (video !== false) await sql`update reels.reels set video_path = ${id + '.mp4'}, cover_path = ${id + '-cover.jpg'}, updated_at = now() where id = ${id}`;
         if (grid) await sql`update reels.reels set grid_covers = true, updated_at = now() where id = ${id}`;
         return json(200, { ok: true });
+      }
+      if (path === '/admin/ig-delete' && req.method === 'POST') {
+        // deletes one Instagram post, only if it is a reel this system published
+        const { media_id } = await req.json();
+        const [r] = await sql`select id from reels.reels where media_id = ${String(media_id)}`;
+        if (!r) return json(404, { error: 'not_our_media' });
+        const res = await ig('DELETE', String(media_id));
+        await log(r.id, 'ig_deleted', String(media_id));
+        return json(200, { ok: true, reel: r.id, res });
       }
       if (path === '/admin/check') {
         const me = await ig('GET', 'me', { fields: 'id,name' });
