@@ -1,0 +1,70 @@
+{
+ "id": "day08-b",
+ "format": "pov",
+ "topic": "בעלי עסקים",
+ "hookType": "incomplete",
+ "hook": "בעל עסק קטן",
+ "hookAccent": "הוא גם...",
+ "items": [
+  {
+   "title": "הקופאי",
+   "body": "וגם הבריסטה.",
+   "visual": {
+    "type": "receipt",
+    "lines": [
+     "קפה",
+     "עוד קפה",
+     "ועוד קפה"
+    ]
+   }
+  },
+  {
+   "title": "איש השיווק",
+   "body": "בהפסקת הצהריים.",
+   "visual": {
+    "type": "chat",
+    "lines": [
+     {
+      "text": "פוסט חדש עלה!",
+      "me": true
+     }
+    ]
+   }
+  },
+  {
+   "title": "השרברב",
+   "body": "כשהברז מטפטף.",
+   "visual": {
+    "type": "clock",
+    "time": "22:00"
+   }
+  }
+ ],
+ "cta": {
+  "big": "שלחו לבעל עסק",
+  "accent": "שצריך לראות את זה",
+  "mono": "@getperko"
+ },
+ "caption": "מה עוד אתם בעסק שלכם? 😅",
+ "music": 4,
+ "hashtags": [
+  "#בעליעסקים",
+  "#עסקקטן",
+  "#הומורלעסקים",
+  "#ירושלים",
+  "#getperko"
+ ],
+ "hookVisual": {
+  "type": "clock",
+  "time": "07:00"
+ },
+ "ctaVisual": {
+  "type": "chat",
+  "lines": [
+   {
+    "text": "חייב לראות את זה",
+    "me": true
+   }
+  ]
+ }
+}

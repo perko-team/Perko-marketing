@@ -90,6 +90,23 @@ days = [
       dict(title='הקפה עליהם', body='הכי טעים השבוע.'),
       dict(title='כרטיסייה חדשה', body='מתחילים מחדש.')], cta=SEND,
       caption='התחושה הכי טובה בשכונה ☕✨')),
+  # day 8
+  (dict(format='tips', topic='טיפים לעסקים', hookType='symptom', hook='לקוח חדש נכנס.', hookAccent='ככה הוא חוזר גם מחר.', items=[
+      dict(title='שימו לב אליו', body='שלום אמיתי, לא רק ״מה תרצו?״.'),
+      dict(title='תנו לו סיבה', body='הטבה קטנה לביקור הבא, כבר היום.'),
+      dict(title='תזכרו אותו', body='בפעם השנייה: ״טוב לראות אותך שוב״.')], cta=BIZ,
+      caption='הביקור השני חשוב יותר מהראשון. מה אתם עושים כדי שיהיה כזה?'),
+   dict(format='pov', topic='בעלי עסקים', hookType='incomplete', hook='בעל עסק קטן', hookAccent='הוא גם...', items=[
+      dict(title='הקופאי', body='וגם הבריסטה.'),
+      dict(title='איש השיווק', body='בהפסקת הצהריים.'),
+      dict(title='השרברב', body='כשהברז מטפטף.')], cta=SEND,
+      caption='מה עוד אתם בעסק שלכם? 😅')),
+  # day 9 (slot b to come)
+  (dict(format='myth', topic='מיתוסים בשיווק', hookType='quiz', hook='מיתוס או אמת?', hookAccent='״כרטיסייה זה רק לבתי קפה.״', items=[
+      dict(title='רק לבתי קפה', body=''),
+      dict(title='לכל עסק שחוזרים אליו', body='מספרה, מאפייה, חנות פרחים, מכבסה.')], cta=BIZ,
+      caption='באיזה עסק בשכונה הייתם רוצים כרטיסייה? כתבו לנו.'),
+   None),
 ]
 
 # What the viewer looks at under the words (src/daily/Props.tsx). Myth and flag items get a stamp or a flag
@@ -118,6 +135,9 @@ VIS = {  # (hook, [items], cta); None = automatic
  'day06-b': (wallet(7), [None, None, None], SENT),
  'day07-a': (stars(2), [chat('הקפה הגיע קר', '>סליחה! מחליפים מיד'), stars(3), stars(5)], APP),
  'day07-b': (card(9, 'כמעט מלאה'), [card(10, 'מלאה!'), phone('redeem-b'), card(0, 'כרטיסייה חדשה')], SENT),
+ 'day08-a': (chat('>ברוכים הבאים!'), [chat('>איך קוראים לך?', 'נועה'), card(1, 'ביקור ראשון'), chat('>נועה! טוב לראות אותך שוב')], APP),
+ 'day08-b': (clock('07:00'), [receipt('קפה', 'עוד קפה', 'ועוד קפה'), chat('>פוסט חדש עלה!'), clock('22:00')], SENT),
+ 'day09-a': (card(4, 'קפה פינה'), [None, wallet(6)], APP),
 }
 
 
@@ -156,6 +176,7 @@ def lint(spec):
 
 for d, (a, b) in enumerate(days, 1):
     for slot, s in (('a', a), ('b', b)):
+        if s is None: continue  # a slot not written yet
         s = {'id': f'day{d:02d}-{slot}', **s}
         s['items'] = [{k: v for k, v in it.items() if v != ''} for it in s['items']]
         s['music'] = (2 * (d - 1) + (slot == 'b')) % 4 + 1
@@ -169,4 +190,4 @@ for d, (a, b) in enumerate(days, 1):
 # the Studio's default props: no narration, or a reel rendered without its own would inherit this one's
 _sample = json.loads((OUT / 'day01-a.json').read_text()); _sample.pop('vo', None)
 (OUT / 'sample.json').write_text(json.dumps(_sample, ensure_ascii=False, indent=1))
-print(len(days) * 2, 'specs')
+print(sum(x is not None for d in days for x in d), 'specs')
