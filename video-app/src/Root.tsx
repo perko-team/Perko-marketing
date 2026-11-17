@@ -10,6 +10,7 @@ import { PerkoReelRace, RACE_FRAMES } from './ReelRace';
 import { DailyReel, spec as dailySpec, dailyFrames } from './daily/DailyReel';
 import { GridCoverLime, GridCoverInk } from './daily/GridCover';
 import { LastStamp, STORY_FRAMES } from './story/LastStamp';
+import { StampReel, STAMP_REEL_FRAMES } from './stamp/StampReel';
 import sample from '../content/daily/sample.json';
 import { FPS, H, REAL_DURATION, W } from './tokens';
 
@@ -19,6 +20,7 @@ export const RemotionRoot: React.FC = () => (
     durationInFrames={dailyFrames(dailySpec.parse(sample))} calculateMetadata={({ props }) => ({ durationInFrames: dailyFrames(props) })} />
   <Composition id="GridCoverLime" component={GridCoverLime} schema={dailySpec} defaultProps={dailySpec.parse(sample)} durationInFrames={1} fps={30} width={1080} height={1920} />
   <Composition id="GridCoverInk" component={GridCoverInk} schema={dailySpec} defaultProps={dailySpec.parse(sample)} durationInFrames={1} fps={30} width={1080} height={1920} />
+  <Composition id="StampReel" component={StampReel} durationInFrames={STAMP_REEL_FRAMES} fps={30} width={1080} height={1920} />
   <Composition id="LastStamp" component={LastStamp} durationInFrames={STORY_FRAMES} fps={30} width={1080} height={1920} />
   <Composition id="PerkoReelRace" component={PerkoReelRace} durationInFrames={RACE_FRAMES} fps={30} width={1080} height={1920} />
   <Composition id="PerkoReelRecruit" component={PerkoReelRecruit} durationInFrames={RECRUIT_FRAMES} fps={30} width={1080} height={1920} />
