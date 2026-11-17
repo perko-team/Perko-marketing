@@ -32,6 +32,7 @@ export const spec = z.object({
   // narration (content/voiceover.py): one clip per scene (hook, each item, cta) in public/daily/vo/, with its length in seconds
   vo: z.object({ voice: z.string(), scenes: z.array(z.object({ file: z.string(), dur: z.number() })) }).optional(),
   sfx: z.boolean().optional(),
+  kit: z.boolean().optional(), // sound effects from the CC0 kit of the sound-effects skill (public/daily/kit) instead of Mixkit
 });
 export type DailySpec = z.infer<typeof spec>;
 
@@ -247,8 +248,21 @@ const FX = {
   rise: { trim: 9, peak: 4, vol: 0.5 }, ding: { trim: 0, peak: 0, vol: 0.7 }, punch: { trim: 0, peak: 2, vol: 1 },
 } as const;
 type Fx = keyof typeof FX;
+/* The same cues played with the CC0 kit (sound-effects skill, Freesound and Kenney; public/daily/kit, credits in kit/CREDITS.txt).
+   peak: frames from the start of the file to its hit (measured); len: frames to play (the glitch file is 4 s long). */
+const KIT: Record<Fx, { file: string; peak: number; vol: number; len?: number }> = {
+  'hook-hit': { file: 'impact', peak: 2, vol: 0.35 }, punch: { file: 'impact', peak: 2, vol: 0.4 }, strike: { file: 'impact', peak: 2, vol: 0.35 },
+  'whoosh-1': { file: 'whoosh', peak: 3, vol: 0.5 }, 'whoosh-2': { file: 'whoosh', peak: 3, vol: 0.45 }, 'whoosh-3': { file: 'whoosh', peak: 3, vol: 0.4 },
+  pop: { file: 'pop', peak: 0, vol: 0.8 }, 'pop-soft': { file: 'pop', peak: 0, vol: 0.5 }, right: { file: 'ding', peak: 0, vol: 0.3 },
+  ding: { file: 'ding', peak: 0, vol: 0.3 }, wrong: { file: 'glitch', peak: 2, vol: 0.18, len: 12 }, rise: { file: 'riser', peak: 58, vol: 0.4 },
+};
+const KitCtx = createContext(false);
 /** plays `name` so that its hit lands on frame `hit` */
 const Sfx: React.FC<{ hit: number; name: Fx; gain?: number }> = ({ hit, name, gain = 1 }) => {
+  if (useContext(KitCtx)) {
+    const k = KIT[name], from = Math.round(hit - k.peak);
+    return <Sequence from={Math.max(0, from)} durationInFrames={(k.len ?? 70) - Math.max(0, -from)} layout="none"><Audio src={staticFile(`daily/kit/${k.file}.ogg`)} trimBefore={Math.max(0, -from)} volume={k.vol * gain} /></Sequence>;
+  }
   const x = FX[name];
   const from = Math.round(hit - x.peak);
   const cut = x.trim + Math.max(0, -from);
@@ -275,7 +289,8 @@ export const DailyReel: React.FC<DailySpec> = (s) => {
   const spans = vo.map((v, i) => [starts[i]! + lead(i), starts[i]! + lead(i) + Math.ceil(v.dur * 30)] as const);
   const music = (f: number) => {
     const ducked = spans.some(([a, b]) => f >= a - 4 && f <= b + 6);
-    return interpolate(f, [0, total - 20, total], [1, 1, 0], clamp) * (ducked ? 0.28 : vo.length ? 0.7 : 0.85);
+    // kit reels: the loop peaks at -2.3 dBFS on its own, so it sits 2.5 dB lower to keep the true peak under -4 dBFS (no limiter in Remotion)
+    return interpolate(f, [0, total - 20, total], [1, 1, 0], clamp) * (ducked ? 0.28 : vo.length ? 0.7 : 0.85) * (s.kit ? 0.75 : 1);
   };
   const fx = s.sfx !== false;
   const scene = (i: number, el: React.ReactNode) => (
@@ -293,7 +308,7 @@ export const DailyReel: React.FC<DailySpec> = (s) => {
       {vo.map((v, i) => (
         <Sequence key={`vo${i}`} from={starts[i]! + lead(i)} durationInFrames={Math.ceil(v.dur * 30) + 10} layout="none"><Audio src={staticFile(`daily/vo/${v.file}`)} volume={1} /></Sequence>
       ))}
-      {fx && <>
+      {fx && <KitCtx.Provider value={!!s.kit}>
         <Sfx hit={0} name="hook-hit" />
         {lens.map((L, i) => <Sfx key={`w${i}`} hit={starts[i]! + L - 10} name={(['whoosh-1', 'whoosh-2', 'whoosh-3'] as const)[i % 3]!} />)}
         {s.items.map((it, i) => {
@@ -311,7 +326,7 @@ export const DailyReel: React.FC<DailySpec> = (s) => {
         <Sfx hit={starts[1 + n]!} name="rise" />
         <Sfx hit={starts[1 + n]! + 2 * BEAT} name="ding" gain={0.8} />
         <Sfx hit={endAt + 24} name="punch" />
-      </>}
+      </KitCtx.Provider>}
     </AbsoluteFill>
   );
 };

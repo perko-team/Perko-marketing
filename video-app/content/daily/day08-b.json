@@ -54,6 +54,7 @@
   "#ירושלים",
   "#getperko"
  ],
+ "kit": true,
  "hookVisual": {
   "type": "clock",
   "time": "07:00"

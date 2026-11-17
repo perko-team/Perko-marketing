@@ -59,6 +59,7 @@
   "#ירושלים",
   "#getperko"
  ],
+ "kit": true,
  "hookVisual": {
   "type": "chat",
   "lines": [

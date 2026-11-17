@@ -37,6 +37,7 @@
   "#ירושלים",
   "#getperko"
  ],
+ "kit": true,
  "hookVisual": {
   "type": "card",
   "stamps": 4,

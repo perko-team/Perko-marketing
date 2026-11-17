@@ -181,6 +181,7 @@ for d, (a, b) in enumerate(days, 1):
         s['items'] = [{k: v for k, v in it.items() if v != ''} for it in s['items']]
         s['music'] = (2 * (d - 1) + (slot == 'b')) % 4 + 1
         s['hashtags'] = TAGS_BIZ if slot == 'a' else TAGS_FUN
+        if d >= 8: s['kit'] = True  # from day 8: sound effects from the sound-effects skill's CC0 kit (public/daily/kit)
         visuals(s)
         lint(s)
         old = OUT / f"{s['id']}.json"

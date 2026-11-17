@@ -1,0 +1,8 @@
+Sound effects for the daily reels from day 8 on, from the CC0 kit of the sound-effects skill (github.com/Barty-Bart/motion-graphics).
+All CC0 (checked on the source pages, 17 Nov 2026). No credit required.
+impact.ogg  "soft_impact3" by peoplearehappy  https://freesound.org/people/peoplearehappy/sounds/841274/
+whoosh.ogg  "Whoosh" by qubodup  https://freesound.org/people/qubodup/sounds/60013/
+pop.ogg     "POP SFX Neutral" by ethernel0  https://freesound.org/people/ethernel0/sounds/776016/
+glitch.ogg  Kenney sci-fi sounds, computerNoise_001  https://kenney.nl/assets/sci-fi-sounds
+ding.ogg    Kenney interface sounds, confirmation_001  https://kenney.nl/assets/interface-sounds
+riser.ogg, click.ogg, tick.ogg  from the same kit (see the skill's sfx/manifest.json)
