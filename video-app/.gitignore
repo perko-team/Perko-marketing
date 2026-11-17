@@ -3,3 +3,4 @@ out/*
 !out/perko-app-promo.mp4
 __pycache__/
 .sound-effects/
+public/music/

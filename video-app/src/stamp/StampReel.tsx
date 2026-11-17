@@ -132,7 +132,9 @@ const End = Interactive.create({ Component: EndInner, layout: 'absolute-fill', s
 /* ---------- the reel ---------- */
 const Music = () => {
   const { fps, durationInFrames } = useVideoConfig();
-  return <Audio name="Music" src={staticFile('daily/music-1.wav')} trimBefore={2 * fps} loop
+  // "Coffee or Tea" by Michael Ramir C., Mixkit #1168, Mixkit Stock Music Free License (commercial social use allowed, checked 17 Nov 2026).
+  // Downloaded by scripts/fetch_music.sh, never committed. Starts on its first beat after the intro (17.9 s).
+  return <Audio name="Music" src={staticFile('music/mixkit-1168.mp3')} trimBefore={Math.round(17.9 * fps)}
     volume={(f) => interpolate(f, [0, durationInFrames - 0.6 * fps, durationInFrames], [0.55, 0.55, 0], clamp)} />;
 };
 
@@ -173,18 +175,18 @@ export const StampReel = () => {
       </Track>
       {/* sound effects (CC0 kit from the sound-effects skill, public/daily/kit), on the frames where things land */}
       <Track name="Hook sounds">
-        <Audio name="Card lands" src={staticFile('daily/kit/impact.ogg')} from={0.25 * fps} durationInFrames={fps} volume={0.4} />
+        <Audio name="Card lands" src={staticFile('daily/kit/impact.ogg')} from={0.25 * fps} durationInFrames={fps} volume={0.3} />
       </Track>
       <Track name="Transitions">
         <Audio name="Whoosh 1" src={staticFile('daily/kit/whoosh.ogg')} from={2.6 * fps - t} durationInFrames={fps} volume={0.45} />
         <Audio name="Whoosh 2" src={staticFile('daily/kit/whoosh.ogg')} from={4.6 * fps - 2 * t} durationInFrames={fps} volume={0.45} />
         <Audio name="Whoosh 3" src={staticFile('daily/kit/whoosh.ogg')} from={7 * fps - 3 * t} durationInFrames={fps} volume={0.45} />
-        <Audio name="Flash" src={staticFile('daily/kit/impact.ogg')} from={9.4 * fps - 4 * t + t / 2} durationInFrames={fps} volume={0.3} />
+        <Audio name="Flash" src={staticFile('daily/kit/impact.ogg')} from={9.4 * fps - 4 * t + t / 2} durationInFrames={fps} volume={0.2} />
         <Audio name="Whoosh 5" src={staticFile('daily/kit/whoosh.ogg')} from={11.4 * fps - 5 * t} durationInFrames={fps} volume={0.45} />
       </Track>
       <Track name="Story sounds">
         <Audio name="Tap" src={staticFile('daily/kit/ding.ogg')} from={7 * fps - 3 * t + 1.2 * fps} durationInFrames={fps} volume={0.35} />
-        <Audio name="Last stamp" src={staticFile('daily/kit/impact.ogg')} from={9.4 * fps - 4 * t + 0.4 * fps} durationInFrames={fps} volume={0.45} />
+        <Audio name="Last stamp" src={staticFile('daily/kit/impact.ogg')} from={9.4 * fps - 4 * t + 0.4 * fps} durationInFrames={fps} volume={0.24} />
         <Audio name="Logo" src={staticFile('daily/kit/pop.ogg')} from={11.4 * fps - 5 * t + 0.2 * fps} durationInFrames={fps} volume={0.6} />
       </Track>
     </>

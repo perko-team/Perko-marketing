@@ -53,3 +53,21 @@ claims the items do not back up.
   [Terra Market Group, 30 opening patterns](https://www.terramarketgroup.com/blog/short-form-video-retention-hooks-2026-30-tested-opening-patterns-for-reels-tiktok-and-shorts)
 - On the weak sourcing of the popular percentages: [go-viral.app](https://www.go-viral.app/blog/hook-first-3-seconds/),
   [grow-it.se benchmarks](https://www.grow-it.se/en/resources/short-form-video-retention-benchmarks) (vendor data, directional)
+
+## The hooks skill (viral-video-hooks-retention)
+
+Installed for writing hooks: `npx skills add josiahsiegel/claude-plugin-marketplace@viral-video-hooks-retention -g`
+(lives in `~/.claude/skills/viral-video-hooks-retention`). How we use it, on top of the rules above:
+
+- **Formula for every reel:** `[pattern interrupt] + [value promise] + [open loop]` inside the first three seconds:
+  0-1 s the visual and the hook words land (frame 0), 1-2 s why to keep watching, 2-3 s the gap the reel closes.
+- **Pick the trigger first** (one of its five: curiosity gap, pattern interrupt, open loop, loss aversion,
+  self-identification), then write. Write three candidates with different triggers and keep the one that names the
+  most concrete moment from a business owner's or customer's day.
+- **Its checklist** before a hook goes into a spec: lands at once, uses a trigger, opens a loop, says what is in it
+  for the viewer, matches what follows, not generic, has a visual, works muted.
+- **What we do not take from it:** its attention-span and drop-off percentages (no traceable primary source, see
+  above), and the FOMO lines that bait ("before this gets taken down", "this is going away soon"). Rule 6 still holds:
+  no invented proof, and the payoff must match the promise.
+- Hebrew adaptation: its English templates are translated as situations, never word for word
+  ("POV: You're a [audience] who..." becomes "אף אחד: / בעל העסק בשמונה בבוקר:").
