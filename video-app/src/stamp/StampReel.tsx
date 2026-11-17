@@ -22,8 +22,10 @@ const HookInner = ({ title, line }: { readonly title: string; readonly line: str
   return (
     <>
       <Tag color="#9EA394" style={{ position: 'absolute', top: 360, right: 90 }}>17:42 · בקופה</Tag>
-      <Words name="Hook title" text={title} style={{ position: 'absolute', top: 420, right: 90, left: 90, fontSize: 168, color: PAPER }} />
-      <Words name="Hook line" text={line} delay={8} style={{ position: 'absolute', top: 610, right: 90, left: 90, fontSize: 68, fontWeight: 700, color: LIME }} />
+      <div style={{ position: 'absolute', top: 420, right: 90, left: 90, display: 'flex', flexDirection: 'column', gap: 24 }}>
+        <Words name="Hook title" text={title} style={{ fontSize: 150, color: PAPER }} />
+        <Words name="Hook line" text={line} delay={6} style={{ fontSize: 96, color: LIME }} />
+      </div>
       <PunchCard
         name="Card"
         stamps={9}
@@ -147,11 +149,11 @@ export const StampReel = () => {
     <>
       <TransitionSeries name="Scenes">
         <TransitionSeries.Sequence name="Hook" durationInFrames={2.6 * fps}>
-          <Hook title="חותמת אחת" line="חסרה לקפה חינם." style={{ backgroundColor: INK }} />
+          <Hook title="למה הקפה העשירי" line="אף פעם לא מגיע?" style={{ backgroundColor: INK }} />
         </TransitionSeries.Sequence>
         <TransitionSeries.Transition presentation={iris({ width: W, height: H })} timing={linearTiming({ durationInFrames: t, easing: Easing.bezier(0.7, 0, 0.84, 0) })} />
         <TransitionSeries.Sequence name="Home" durationInFrames={2 * fps}>
-          <Home title="והכרטיסייה נשארה בבית." line="שוב." style={{ backgroundColor: LIME }} />
+          <Home title="כי הכרטיסייה נשארה בבית." line="שוב." style={{ backgroundColor: LIME }} />
         </TransitionSeries.Sequence>
         <TransitionSeries.Transition presentation={wipe({ direction: 'from-bottom' })} timing={springTiming({ config: { damping: 200 }, durationInFrames: t })} />
         <TransitionSeries.Sequence name="Wallet" durationInFrames={2.4 * fps}>
