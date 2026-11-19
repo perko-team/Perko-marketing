@@ -15,13 +15,16 @@ const schema = {
       '@type': 'Organization',
       '@id': `${Astro.site}#org`,
       name: 'Perko',
+      // The Hebrew spelling people type into search; kept out of the visible page.
+      alternateName: ['פרקו', 'פרקו - כרטיסיית נאמנות דיגיטלית'],
       url: Astro.site?.href,
       logo: new URL('/logo.png', Astro.site).href,
       email: 'hello@getperko.com',
       description: 'ארנק דיגיטלי אחד לכרטיסיות הנאמנות של עסקים שכונתיים: צוברים חותמות בסריקה בקופה ומממשים הטבות.',
       areaServed: { '@type': 'City', name: 'ירושלים' },
+      sameAs: ['https://www.instagram.com/getperko/'],
     },
-    { '@type': 'WebSite', name: 'Perko', url: Astro.site?.href, inLanguage: 'he', publisher: { '@id': `${Astro.site}#org` } },
+    { '@type': 'WebSite', name: 'Perko', alternateName: 'פרקו', url: Astro.site?.href, inLanguage: 'he', publisher: { '@id': `${Astro.site}#org` } },
   ],
 };
 ---
