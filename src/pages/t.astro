@@ -1,0 +1,62 @@
+---
+// /t?p=<32 hex>&c=<16 hex>: the URL a Perko NFC tag (NTAG 424 DNA) writes on every tap. iPhones read the tag in the
+// background and open this page in Safari, because the app has no Universal Links yet. The page verifies nothing
+// and sends p and c nowhere: its script only copies them into the perko://t link of the "פתחו ב-Perko" button,
+// and the app's server checks the tag's signature and counter. Android with the app installed opens the app
+// directly (intent filter). Not indexed, no referrer, no third-party requests.
+import '@fontsource-variable/heebo';
+import '../styles/global.css';
+import Wordmark from '../components/Wordmark.astro';
+---
+<!doctype html>
+<html lang="he" dir="rtl">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>פתחו ב-Perko</title>
+    <meta name="description" content="נגעתם בתג של עסק שמשתתף ב-Perko. פותחים את האפליקציה, והחותמת נוספת לכרטיס." />
+    <meta name="robots" content="noindex, nofollow" />
+    <meta name="referrer" content="no-referrer" />
+    <meta name="theme-color" content="#D7FF35" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  </head>
+  <body class="tap">
+    <main id="main" class="tap-main">
+      <a href="/" class="tap-logo" aria-label="Perko, לדף הבית"><Wordmark /></a>
+      <h1>נגעתם בתג של העסק</h1>
+      <p class="tap-lead">פותחים את האפליקציה, והחותמת נוספת לכרטיס שלכם.</p>
+      <a id="open" class="tap-btn" href="perko://t" aria-describedby="tap-hint">פתחו ב-Perko</a>
+      <p id="tap-hint" class="tap-hint">כל נגיעה טובה לחותמת אחת. אם עבר זמן, נוגעים שוב בתג.</p>
+      <p id="tap-bad" class="tap-hint" role="alert" hidden>הקישור לא שלם. נוגעים שוב בתג עם הטלפון.</p>
+      <section class="tap-noapp" aria-labelledby="noapp-h">
+        <h2 id="noapp-h">אין לכם את האפליקציה?</h2>
+        <p>האפליקציה של Perko תגיע בקרוב לחנויות. בינתיים אפשר לקרוא עליה <a href="/">בדף הבית</a>.</p>
+      </section>
+    </main>
+    <!-- A file, not an inline script: the Content-Security-Policy (vercel.json) allows scripts from this site only. -->
+    <script is:inline src="/t.js" defer></script>
+    <style>
+      .tap { background: var(--lime); color: var(--ink); min-height: 100dvh; }
+      .tap-main {
+        max-width: 26rem; margin: 0 auto; padding: 2rem 1rem 3rem;
+        display: flex; flex-direction: column; gap: 1rem; min-height: 100dvh;
+      }
+      .tap-logo { align-self: flex-end; color: var(--ink); margin-bottom: 2.5rem; }
+      .tap h1 { font-size: clamp(2.2rem, 9vw, 2.8rem); line-height: 1.05; letter-spacing: -0.035em; margin: 0; font-weight: 800; }
+      .tap-lead { font-size: 1.15rem; line-height: 1.5; margin: 0; color: #303626; }
+      .tap-btn {
+        display: flex; align-items: center; justify-content: center; min-height: 3.75rem; margin-top: 0.75rem;
+        background: var(--ink); color: var(--lime); border-radius: 999px; font-size: 1.2rem; font-weight: 800;
+        text-decoration: none;
+      }
+      .tap-btn:active { transform: scale(0.98); }
+      .tap-btn-off { opacity: 0.45; pointer-events: none; }
+      .tap-hint { margin: 0; font-size: 1rem; color: #303626; text-align: center; }
+      .tap-noapp { margin-top: auto; padding: 1.25rem; border-radius: 1.4rem; background: rgba(17, 19, 15, 0.08); }
+      .tap-noapp h2 { margin: 0 0 0.35rem; font-size: 1.1rem; font-weight: 800; }
+      .tap-noapp p { margin: 0; line-height: 1.5; }
+      .tap-noapp a { color: var(--ink); font-weight: 700; }
+      @media (prefers-reduced-motion: reduce) { .tap-btn:active { transform: none; } }
+    </style>
+  </body>
+</html>
